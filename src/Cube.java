@@ -1,6 +1,8 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 public class Cube {
 	public final Color FRONT_COLOR = Color.RED;
@@ -275,7 +277,45 @@ public class Cube {
 	}
 	
 	public void executeCommands(String c){
+		Pattern pattern = Pattern.compile("([lrfbduLRFDBU][2']?)");
+		Matcher matcher = pattern.matcher(c);
 		
+		
+		while(matcher.find())
+		{	
+		    executeCommand(matcher.group(1));
+		    matcher.start();
+		}
+		
+		System.out.println();
+	}
+	
+	public void executeCommand(String c){
+		switch(c){
+		case "U":  case "u":  turnUp(true); break;
+		case "U'": case "u'": turnUp(false); break;
+		case "U2": case "u2": turnUp(true); turnUp(true); break;
+		
+		case "D":  case "d":  turnDown(true); break;
+		case "D'": case "d'": turnDown(false); break;
+		case "D2": case "d2": turnDown(true); turnDown(true); break;
+		
+		case "L":  case "l":  turnLeft(true); break;
+		case "L'": case "l'": turnLeft(false); break;
+		case "L2": case "l2": turnLeft(true); turnLeft(true); break;
+		
+		case "R":  case "r":  turnRight(true); break;
+		case "R'": case "r'": turnRight(false); break;
+		case "R2": case "r2": turnRight(true); turnRight(true); break;
+		
+		case "F":  case "f":  turnFront(true); break;
+		case "F'": case "f'": turnFront(false); break;
+		case "F2": case "f2": turnFront(true); turnFront(true); break;
+		
+		case "B":  case "b":  turnBack(true); break;
+		case "B'": case "b'": turnBack(false); break;
+		case "B2": case "b2": turnBack(true); turnBack(true); break;
+		}
 	}
 	
 	public void draw(GraphicsContext gc){
