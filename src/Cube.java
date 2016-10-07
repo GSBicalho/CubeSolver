@@ -36,6 +36,8 @@ public class Cube {
 		D1, D2, D3,
 		D4, D5, D6,
 		D7, D8, D9,
+		
+		XX
 	}
 	
 	private final Square[][] INIT_FRONT = {{Square.F1, Square.F2, Square.F3},
@@ -135,7 +137,7 @@ public class Cube {
 		return Color.BLACK;
 	}
 	
-	public void rotateMatrix(Side side, boolean clockwise){
+	public void rotateSide(Side side, boolean clockwise){
 		if(clockwise){
 			Square aux = side.m[0][0];
 			side.m[0][0] = side.m[0][2];
@@ -149,9 +151,9 @@ public class Cube {
 			side.m[2][1] = side.m[1][0];
 			side.m[1][0] = aux;
 		}else{
-			rotateMatrix(side, true);
-			rotateMatrix(side, true);
-			rotateMatrix(side, true);
+			rotateSide(side, true);
+			rotateSide(side, true);
+			rotateSide(side, true);
 		}
 	}
 	
@@ -193,93 +195,293 @@ public class Cube {
 	}
 	
 	public void turnFront(boolean clockwise){
-		rotateMatrix(front, !clockwise);
+		rotateSide(front, !clockwise);
 		
-		rotateMatrix(right, false);
-		rotateMatrix(left, true);
-		rotateMatrix(up, true);
-		rotateMatrix(up, true);
+		rotateSide(right, false);
+		rotateSide(left, true);
+		rotateSide(up, true);
+		rotateSide(up, true);
 		
 		rotateInCircle(up, down, left, right, clockwise);
 		
-		rotateMatrix(right, true);
-		rotateMatrix(left, false);
-		rotateMatrix(up, true);
-		rotateMatrix(up, true);
+		rotateSide(right, true);
+		rotateSide(left, false);
+		rotateSide(up, true);
+		rotateSide(up, true);
 	}
 	
 	public void turnBack(boolean clockwise){
-		rotateMatrix(back, !clockwise);
+		rotateSide(back, !clockwise);
 		
-		rotateMatrix(right, true);
-		rotateMatrix(left, false);
-		rotateMatrix(down, true);
-		rotateMatrix(down, true);
+		rotateSide(right, true);
+		rotateSide(left, false);
+		rotateSide(down, true);
+		rotateSide(down, true);
 		rotateInCircle(up, down, right, left, clockwise);
-		rotateMatrix(right, false);
-		rotateMatrix(left, true);
-		rotateMatrix(down, true);
-		rotateMatrix(down, true);
+		rotateSide(right, false);
+		rotateSide(left, true);
+		rotateSide(down, true);
+		rotateSide(down, true);
 	}
 	
 	public void turnUp(boolean clockwise){
-		rotateMatrix(up, !clockwise);
+		rotateSide(up, !clockwise);
 		
 		rotateInCircle(back, front, left, right, clockwise);
 	}
 	
 	public void turnDown(boolean clockwise){
-		rotateMatrix(down, !clockwise);
+		rotateSide(down, !clockwise);
 		
-		rotateMatrix(front, true);
-		rotateMatrix(front, true);
-		rotateMatrix(back, true);
-		rotateMatrix(back, true);
-		rotateMatrix(left, true);
-		rotateMatrix(left, true);
-		rotateMatrix(right, true);
-		rotateMatrix(right, true);
+		rotateSide(front, true);
+		rotateSide(front, true);
+		rotateSide(back, true);
+		rotateSide(back, true);
+		rotateSide(left, true);
+		rotateSide(left, true);
+		rotateSide(right, true);
+		rotateSide(right, true);
 		rotateInCircle(front, back, left, right, clockwise);
-		rotateMatrix(front, true);
-		rotateMatrix(front, true);
-		rotateMatrix(back, true);
-		rotateMatrix(back, true);
-		rotateMatrix(left, true);
-		rotateMatrix(left, true);
-		rotateMatrix(right, true);
-		rotateMatrix(right, true);
+		rotateSide(front, true);
+		rotateSide(front, true);
+		rotateSide(back, true);
+		rotateSide(back, true);
+		rotateSide(left, true);
+		rotateSide(left, true);
+		rotateSide(right, true);
+		rotateSide(right, true);
 	}
 	
 	public void turnLeft(boolean clockwise){
-		rotateMatrix(left, !clockwise);
+		rotateSide(left, !clockwise);
 		
-		rotateMatrix(up, false);
-		rotateMatrix(down, false);
-		rotateMatrix(front, false);
-		rotateMatrix(back, true);
+		rotateSide(up, false);
+		rotateSide(down, false);
+		rotateSide(front, false);
+		rotateSide(back, true);
 		rotateInCircle(up, down, back, front, clockwise);
-		rotateMatrix(up, true);
-		rotateMatrix(down, true);
-		rotateMatrix(front, true);
-		rotateMatrix(back, false);
+		rotateSide(up, true);
+		rotateSide(down, true);
+		rotateSide(front, true);
+		rotateSide(back, false);
 	}
 	
 	public void turnRight(boolean clockwise){
-		rotateMatrix(right, !clockwise);
+		rotateSide(right, !clockwise);
 		
-		rotateMatrix(up, true);
-		rotateMatrix(down, true);
-		rotateMatrix(front, true);
-		rotateMatrix(back, false);
+		rotateSide(up, true);
+		rotateSide(down, true);
+		rotateSide(front, true);
+		rotateSide(back, false);
 		rotateInCircle(up, down, front, back, clockwise);
-		rotateMatrix(up, false);
-		rotateMatrix(down, false);
-		rotateMatrix(front, false);
-		rotateMatrix(back, true);
+		rotateSide(up, false);
+		rotateSide(down, false);
+		rotateSide(front, false);
+		rotateSide(back, true);
 	}
 	
 	public Cube (){
 		reset();
+	}
+	
+	//Matrix containing 6 3x3 matrixes
+	public Cube(Color[][][] coloredCube){
+		Color[][] fM = null, bM = null, lM = null, rM = null, uM = null, dM = null;
+		for(int i = 0; i < 6; i++){
+			if(coloredCube[i][1][1] == FRONT_COLOR) fM = coloredCube[i]; else
+			if(coloredCube[i][1][1] == BACK_COLOR) bM = coloredCube[i]; else
+			
+			if(coloredCube[i][1][1] == LEFT_COLOR) lM = coloredCube[i]; else
+			if(coloredCube[i][1][1] == RIGHT_COLOR) rM = coloredCube[i]; else
+			
+			if(coloredCube[i][1][1] == UP_COLOR) uM = coloredCube[i]; else
+			if(coloredCube[i][1][1] == DOWN_COLOR) dM = coloredCube[i];
+		}
+		
+		
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				front.m[i][j] = getCorrespondingSquare(fM, 
+									rotate2ColorMatrix(uM), 
+									dM, 
+									rotateColorMatrix(lM, false), 
+									rotateColorMatrix(rM, true), 
+									i, j);
+				back.m[i][j] = getCorrespondingSquare(bM, 
+						uM, 
+						rotate2ColorMatrix(dM), 
+						rotateColorMatrix(rM, false), 
+						rotateColorMatrix(lM, true), 
+						i, j);
+				left.m[i][j] = getCorrespondingSquare(lM, 
+						rotateColorMatrix(uM, true), 
+						rotateColorMatrix(dM, true), 
+						rotateColorMatrix(bM, false), 
+						rotateColorMatrix(fM, true), 
+						i, j);
+				right.m[i][j] = getCorrespondingSquare(rM, 
+						rotateColorMatrix(uM, false), 
+						rotateColorMatrix(dM, false), 
+						rotateColorMatrix(fM, false), 
+						rotateColorMatrix(bM, true), 
+						i, j);
+				up.m[i][j] = getCorrespondingSquare(uM, 
+						bM, 
+						fM, 
+						lM, 
+						rM, 
+						i, j);
+				down.m[i][j] = getCorrespondingSquare(dM, 
+						rotate2ColorMatrix(fM), 
+						rotate2ColorMatrix(bM), 
+						rotate2ColorMatrix(lM), 
+						rotate2ColorMatrix(rM), 
+						i, j);
+			}
+		}
+	}
+	
+	public Color[][] rotate2ColorMatrix(Color[][] m){
+		return rotateColorMatrix(rotateColorMatrix(m, true), true);
+	}
+	
+	public Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
+		if(clockwise){
+			Color aux = m[0][0];
+			m[0][0] = m[2][0];
+			m[2][0] = m[2][2];
+			m[2][2] = m[0][2];
+			m[0][2] = aux;
+			
+			aux = m[0][1];
+			m[0][1] = m[1][0];
+			m[1][0] = m[2][1];
+			m[2][1] = m[1][2];
+			m[1][2] = aux;
+			
+			return m;
+		}else{
+			m = rotateColorMatrix(m, true);
+			m = rotateColorMatrix(m, true);
+			m = rotateColorMatrix(m, true);
+			return m;
+		}
+	}
+	
+	public Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
+		if(i == 1 && j == 1){
+			if(m[1][1] == FRONT_COLOR) 	return Square.F5;
+			if(m[1][1] == BACK_COLOR) 	return Square.B5;
+			
+			if(m[1][1] == LEFT_COLOR) 	return Square.L5;
+			if(m[1][1] == RIGHT_COLOR) 	return Square.R5;
+			
+			if(m[1][1] == UP_COLOR) 	return Square.U5;
+			if(m[1][1] == DOWN_COLOR) 	return Square.D5;
+		}
+		
+		//we rotate them, so we only have to check [0,0] and [0,1]
+		if(i == 0 && j == 2 || i == 1 && j == 2){
+			m = rotateColorMatrix(m, false);
+			
+			Color[][] aux = u;
+			u = r;
+			r = d;
+			d = l;
+			l = aux;
+		}else if(i == 2 && j == 0 || i == 0 && j == 1){
+			m = rotateColorMatrix(m, true);
+			
+			Color[][] aux = u;
+			u = l;
+			l = d;
+			d = r;
+			r = aux;
+		}else if(i == 2 && j == 2 || i == 2 && j == 1){
+			m = rotateColorMatrix(m, true);
+			m = rotateColorMatrix(m, true);
+			
+			Color[][] aux = u;
+			u = d;
+			d = aux;
+			aux = r;
+			r = l;
+			l = aux;
+		}
+		
+		if(i==1 || j == 1){ //se for um dos meios
+			Color searched = m[0][1];
+			Color upFromSearched = u[0][1];
+			if(searched == FRONT_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.F2;
+				if(upFromSearched == LEFT_COLOR) 	return Square.F4;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.F6;
+				if(upFromSearched == DOWN_COLOR) 	return Square.F8;
+			}else if(searched == BACK_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.B2;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.B4;
+				if(upFromSearched == LEFT_COLOR) 	return Square.B6;
+				if(upFromSearched == DOWN_COLOR) 	return Square.B8;
+			}else if(searched == LEFT_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.L2;
+				if(upFromSearched == BACK_COLOR) 	return Square.L4;
+				if(upFromSearched == FRONT_COLOR) 	return Square.L6;
+				if(upFromSearched == DOWN_COLOR) 	return Square.L8;
+			}else if(searched == RIGHT_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.R2;
+				if(upFromSearched == FRONT_COLOR) 	return Square.R4;
+				if(upFromSearched == BACK_COLOR) 	return Square.R6;
+				if(upFromSearched == DOWN_COLOR) 	return Square.R8;
+			}else if(searched == UP_COLOR){
+				if(upFromSearched == BACK_COLOR) 	return Square.U2;
+				if(upFromSearched == LEFT_COLOR) 	return Square.U4;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.U6;
+				if(upFromSearched == FRONT_COLOR) 	return Square.U8;
+			}else if(searched == DOWN_COLOR){
+				if(upFromSearched == FRONT_COLOR) 	return Square.D2;
+				if(upFromSearched == LEFT_COLOR) 	return Square.D4;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.D6;
+				if(upFromSearched == BACK_COLOR) 	return Square.D8;
+			}
+		}else{ //se for um dos cantos
+			Color searched = m[0][1];
+			Color upFromSearched = u[0][3];
+			Color leftFromSearched = l[0][0];
+			
+			if(searched == FRONT_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.F1;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.F3;
+				if(upFromSearched == LEFT_COLOR) 	return Square.F7;
+				if(upFromSearched == DOWN_COLOR) 	return Square.F9;
+			}else if(searched == BACK_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.B1;
+				if(upFromSearched == LEFT_COLOR) 	return Square.B3;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.B7;
+				if(upFromSearched == DOWN_COLOR) 	return Square.B9;
+			}else if(searched == LEFT_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.L1;
+				if(upFromSearched == FRONT_COLOR) 	return Square.L3;
+				if(upFromSearched == BACK_COLOR) 	return Square.L7;
+				if(upFromSearched == DOWN_COLOR) 	return Square.L9;
+			}else if(searched == RIGHT_COLOR){
+				if(upFromSearched == UP_COLOR) 		return Square.R1;
+				if(upFromSearched == BACK_COLOR) 	return Square.R3;
+				if(upFromSearched == FRONT_COLOR) 	return Square.R7;
+				if(upFromSearched == DOWN_COLOR) 	return Square.R9;
+			}else if(searched == UP_COLOR){
+				if(upFromSearched == BACK_COLOR) 	return Square.U1;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.U3;
+				if(upFromSearched == LEFT_COLOR) 	return Square.U7;
+				if(upFromSearched == FRONT_COLOR) 	return Square.U9;
+			}else if(searched == DOWN_COLOR){
+				if(upFromSearched == FRONT_COLOR) 	return Square.D1;
+				if(upFromSearched == RIGHT_COLOR) 	return Square.D3;
+				if(upFromSearched == LEFT_COLOR) 	return Square.D7;
+				if(upFromSearched == BACK_COLOR) 	return Square.D9;
+			}
+		}
+		
+		return Square.XX;
 	}
 	
 	public Cube clone(){
