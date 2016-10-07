@@ -2,6 +2,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
@@ -11,8 +12,26 @@ public class CubeWindowController {
 	@FXML public Canvas cv_canvas;
 	@FXML public TextField tf_command;
 	
+	@FXML public Button btn_front;
+	@FXML public Button btn_back;
+	@FXML public Button btn_left;
+	@FXML public Button btn_right;
+	@FXML public Button btn_up;
+	@FXML public Button btn_down;
+	
+	@FXML public Button btn_reset;
+	@FXML public Button btn_paint;
+	
 	Cube c;
 	GraphicsContext gc;
+	boolean isPainting = false;
+	
+	public Color[][] paintFront;
+	public Color[][] paintBack;
+	public Color[][] paintLeft;
+	public Color[][] paintRight;
+	public Color[][] paintUp;
+	public Color[][] paintDown;
 	
 	public void initialize() {
 		Color[][][] aux = {
@@ -99,11 +118,177 @@ public class CubeWindowController {
 	}
 	
 	@FXML protected void btnResetButton(ActionEvent event) {
-		c.reset();
-		System.out.println(c);
-		c.draw(gc);
+		if(!isPainting){
+			c.reset();
+			System.out.println(c);
+			c.draw(gc);
+		}else{
+			
+		}
 	}
 	
+	@FXML protected void btnPaintButton(ActionEvent event) {
+		if(isPainting){
+			isPainting = false;
+			
+			btn_front.setDisable(false);
+			btn_back.setDisable(false);
+			btn_left.setDisable(false);
+			btn_right.setDisable(false);
+			btn_up.setDisable(false);
+			btn_down.setDisable(false);
+			tf_command.setDisable(false);
+			
+			btn_reset.setText("Reset");
+			btn_paint.setText("Paint");
+			
+			c.draw(gc);
+		}else{
+			isPainting = true;
+			
+			btn_front.setDisable(true);
+			btn_back.setDisable(true);
+			btn_left.setDisable(true);
+			btn_right.setDisable(true);
+			btn_up.setDisable(true);
+			btn_down.setDisable(true);
+			tf_command.setDisable(true);
+			
+			btn_reset.setText("Confirm");
+			btn_paint.setText("Cancel");
+			
+			paintFront = createCenterOnlyColorMatrix(Cube.FRONT_COLOR);
+			paintBack = createCenterOnlyColorMatrix(Cube.BACK_COLOR);
+			paintLeft = createCenterOnlyColorMatrix(Cube.LEFT_COLOR);
+			paintRight = createCenterOnlyColorMatrix(Cube.RIGHT_COLOR);
+			paintUp = createCenterOnlyColorMatrix(Cube.UP_COLOR);
+			paintDown = createCenterOnlyColorMatrix(Cube.DOWN_COLOR);
+			
+			drawPaint();
+		}
+	}
+	
+	public Color[][] createCenterOnlyColorMatrix(Color center){
+		Color[][] m = new Color[3][3];
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				m[i][j] = Cube.ERROR_COLOR;
+			}
+		}
+		m[1][1] = center;
+		return m;
+	}
+	
+	protected void drawPaint(){
+		int hOffset = 10;
+		int vOffset = 10;
+		int hPadding = 4;
+		int vPadding = 4;
+		
+		int hDiag = 21;
+		int vDiag = 21;
+		
+		int sizeOfSquare = 35;
+		
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+		
+		gc.setFill(Color.BLACK);
+		gc.setStroke(Color.BLACK);
+		gc.setLineWidth(2f);
+		
+		//front side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintFront[j][i]);
+				gc.fillRect(hPadding + hOffset + sizeOfSquare * (3 + i), vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hPadding + hOffset + sizeOfSquare * (3 + i),vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		//left side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintLeft[j][i]);
+				gc.fillRect(hOffset + sizeOfSquare * i, vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hOffset + sizeOfSquare * i, vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		//down side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintDown[j][i]);
+				gc.fillRect(hPadding + hOffset + sizeOfSquare * (3 + i), vPadding + vOffset + sizeOfSquare*(4 + 3 + j), sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hPadding + hOffset + sizeOfSquare * (3 + i),vPadding +  vOffset + sizeOfSquare*(4 + 3 + j), sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		//up side
+		for(int i = 0; i < 3; i++){
+			int initialPointX = hPadding + hOffset + sizeOfSquare * 3 + hDiag * 3 + 1;
+			int initialPointY = - vPadding + vOffset + sizeOfSquare*4 - 3 * vDiag;
+			
+			for(int j = 0; j < 3; j++){
+				double[] xs = {
+						initialPointX + sizeOfSquare * j - hDiag * i,
+						initialPointX + sizeOfSquare * (j + 1)  - hDiag * i,
+						initialPointX + sizeOfSquare * (j + 1) - hDiag * (i + 1),
+						initialPointX + sizeOfSquare * j - hDiag * (i + 1),
+				}; 
+				double[] ys = {
+						initialPointY + vDiag * i,
+						initialPointY + vDiag * i,
+						initialPointY + vDiag * (i + 1),
+						initialPointY + vDiag * (i + 1)
+				};
+				gc.setFill(paintUp[i][j]);
+				gc.fillPolygon(xs, ys, 4);
+				gc.setStroke(Color.BLACK);
+				gc.strokePolygon(xs, ys, 4);
+			}
+		}
+		
+		//right side
+		for(int i = 0; i < 3; i++){
+			int initialPointX = hPadding*2 + hOffset + sizeOfSquare * 6;
+			int initialPointY = vOffset + sizeOfSquare*4;
+			
+			for(int j = 0; j < 3; j++){
+				double[] ys = {
+						initialPointY + sizeOfSquare * j - vDiag * i,
+						initialPointY + sizeOfSquare * (j + 1) - vDiag * i,
+						initialPointY + sizeOfSquare * (j + 1) - vDiag * (i + 1),
+						initialPointY + sizeOfSquare * j - vDiag * (i + 1),
+				}; 
+				double[] xs = {
+						initialPointX + hDiag * i,
+						initialPointX + hDiag * i,
+						initialPointX + hDiag * (i + 1),
+						initialPointX + hDiag * (i + 1)
+				};
+				gc.setFill(paintRight[j][i]);
+				gc.fillPolygon(xs, ys, 4);
+				gc.setStroke(Color.BLACK);
+				gc.strokePolygon(xs, ys, 4);
+			}
+		}
+		
+		//back side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintBack[j][i]);
+				gc.fillRect(hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3, vPadding + vOffset + sizeOfSquare*(2 + j) + 2, sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3,vPadding +  vOffset + sizeOfSquare*(2 + j) + 2, sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+	}
+
 	@FXML protected void actionEvent_Command(ActionEvent event) {
 		c.executeCommands(tf_command.getText());
 		tf_command.setText("");

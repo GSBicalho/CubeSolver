@@ -13,6 +13,8 @@ public class Cube {
 	public static final Color UP_COLOR = Color.YELLOW;
 	public static final Color DOWN_COLOR = Color.WHITE;
 	
+	public static final Color ERROR_COLOR = Color.DARKGRAY;
+	
 	enum Square{
 		F1, F2, F3,
 		F4, F5, F6,
