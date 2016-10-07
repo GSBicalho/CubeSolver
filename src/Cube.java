@@ -1,8 +1,9 @@
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public class Cube {
 	public static final Color FRONT_COLOR = Color.RED;
@@ -65,6 +66,8 @@ public class Cube {
 	public Side right = new Side();
 	public Side front = new Side();
 	public Side back = new Side();
+	
+	public class InvalidCubeException extends Exception{}
 	
 	public class Side{
 		Square[][] m = new Square[3][3];
@@ -137,7 +140,7 @@ public class Cube {
 		return Color.BLACK;
 	}
 	
-	public void rotateSide(Side side, boolean clockwise){
+	private void rotateSide(Side side, boolean clockwise){
 		if(clockwise){
 			Square aux = side.m[0][0];
 			side.m[0][0] = side.m[0][2];
@@ -285,67 +288,105 @@ public class Cube {
 	}
 	
 	//Matrix containing 6 3x3 matrixes
-	public Cube(Color[][][] coloredCube){
-		Color[][] fM = null, bM = null, lM = null, rM = null, uM = null, dM = null;
-		for(int i = 0; i < 6; i++){
-			if(coloredCube[i][1][1] == FRONT_COLOR) fM = coloredCube[i]; else
-			if(coloredCube[i][1][1] == BACK_COLOR) bM = coloredCube[i]; else
-			
-			if(coloredCube[i][1][1] == LEFT_COLOR) lM = coloredCube[i]; else
-			if(coloredCube[i][1][1] == RIGHT_COLOR) rM = coloredCube[i]; else
-			
-			if(coloredCube[i][1][1] == UP_COLOR) uM = coloredCube[i]; else
-			if(coloredCube[i][1][1] == DOWN_COLOR) dM = coloredCube[i];
-		}
-		
-		
+	public Cube(Color[][][] coloredCube) throws InvalidCubeException{
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
-				front.m[i][j] = getCorrespondingSquare(fM, 
-									rotate2ColorMatrix(uM), 
-									dM, 
-									rotateColorMatrix(lM, false), 
-									rotateColorMatrix(rM, true), 
-									i, j);
-				back.m[i][j] = getCorrespondingSquare(bM, 
-						uM, 
-						rotate2ColorMatrix(dM), 
-						rotateColorMatrix(rM, false), 
-						rotateColorMatrix(lM, true), 
-						i, j);
-				left.m[i][j] = getCorrespondingSquare(lM, 
-						rotateColorMatrix(uM, true), 
-						rotateColorMatrix(dM, true), 
-						rotateColorMatrix(bM, false), 
-						rotateColorMatrix(fM, true), 
-						i, j);
-				right.m[i][j] = getCorrespondingSquare(rM, 
-						rotateColorMatrix(uM, false), 
-						rotateColorMatrix(dM, false), 
-						rotateColorMatrix(fM, false), 
-						rotateColorMatrix(bM, true), 
-						i, j);
-				up.m[i][j] = getCorrespondingSquare(uM, 
-						bM, 
-						fM, 
-						lM, 
-						rM, 
-						i, j);
-				down.m[i][j] = getCorrespondingSquare(dM, 
-						rotate2ColorMatrix(fM), 
-						rotate2ColorMatrix(bM), 
-						rotate2ColorMatrix(lM), 
-						rotate2ColorMatrix(rM), 
-						i, j);
+				front.m[i][j] = Square.XX;
+				back.m[i][j] = Square.XX;
+				left.m[i][j] = Square.XX;
+				right.m[i][j] = Square.XX;
+				up.m[i][j] = Square.XX;
+				down.m[i][j] = Square.XX;
 			}
+		}
+		
+		try{
+			Color[][] fM = null, bM = null, lM = null, rM = null, uM = null, dM = null;
+			for(int i = 0; i < 6; i++){
+				if(coloredCube[i][1][1] == FRONT_COLOR) fM = coloredCube[i]; else
+				if(coloredCube[i][1][1] == BACK_COLOR) bM = coloredCube[i]; else
+				
+				if(coloredCube[i][1][1] == LEFT_COLOR) lM = coloredCube[i]; else
+				if(coloredCube[i][1][1] == RIGHT_COLOR) rM = coloredCube[i]; else
+				
+				if(coloredCube[i][1][1] == UP_COLOR) uM = coloredCube[i]; else
+				if(coloredCube[i][1][1] == DOWN_COLOR) dM = coloredCube[i];
+			}
+			
+			
+			for(int i = 0; i < 3; i++){
+				for(int j = 0; j < 3; j++){
+					front.m[i][j] = getCorrespondingSquare(fM, 
+										rotate2ColorMatrix(uM), 
+										dM, 
+										rotateColorMatrix(lM, false), 
+										rotateColorMatrix(rM, true), 
+										i, j);
+					back.m[i][j] = getCorrespondingSquare(bM, 
+							uM, 
+							rotate2ColorMatrix(dM), 
+							rotateColorMatrix(rM, false), 
+							rotateColorMatrix(lM, true), 
+							i, j);
+					left.m[i][j] = getCorrespondingSquare(lM, 
+							rotateColorMatrix(uM, true), 
+							rotateColorMatrix(dM, true), 
+							rotateColorMatrix(bM, false), 
+							rotateColorMatrix(fM, true), 
+							i, j);
+					right.m[i][j] = getCorrespondingSquare(rM, 
+							rotateColorMatrix(uM, false), 
+							rotateColorMatrix(dM, false), 
+							rotateColorMatrix(fM, false), 
+							rotateColorMatrix(bM, true), 
+							i, j);
+					up.m[i][j] = getCorrespondingSquare(uM, 
+							bM, 
+							fM, 
+							lM, 
+							rM, 
+							i, j);
+					down.m[i][j] = getCorrespondingSquare(dM, 
+							rotate2ColorMatrix(fM), 
+							rotate2ColorMatrix(bM), 
+							rotate2ColorMatrix(lM), 
+							rotate2ColorMatrix(rM), 
+							i, j);
+				}
+			}
+			
+			if(matrixContains(front.m, Square.XX) || 
+			   matrixContains(back.m, Square.XX) || 
+			   matrixContains(left.m, Square.XX) || 
+			   matrixContains(right.m, Square.XX) || 
+			   matrixContains(up.m, Square.XX) || 
+			   matrixContains(down.m, Square.XX)){
+				throw new Exception();
+			}
+			
+			ArrayList<Square> testArray = new ArrayList<Square>();
+			Side[] sides = {front, back, left, right, up, down};
+			for(Side s : sides){
+				for(Square[] aS : s.m){
+					for(Square square : aS){
+						if(!testArray.contains(square)){
+							testArray.add(square);
+						}else{
+							throw new Exception();
+						}
+					}
+				}
+			}
+		}catch(Exception e){
+			throw new InvalidCubeException();
 		}
 	}
 	
-	public Color[][] rotate2ColorMatrix(Color[][] m){
+	private Color[][] rotate2ColorMatrix(Color[][] m){
 		return rotateColorMatrix(rotateColorMatrix(m, true), true);
 	}
 	
-	public Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
+	private Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
 		Color[][] r = new Color[3][3];
 		r[1][1] = m[1][1];
 		
@@ -371,7 +412,7 @@ public class Cube {
 		}
 	}
 	
-	public static Color[][] copyColorMatrix(Color[][] m){
+	private static Color[][] copyColorMatrix(Color[][] m){
 		Color[][] result = new Color[3][3];
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
@@ -381,7 +422,7 @@ public class Cube {
 		return result;
 	}
 	
-	public Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
+	private Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
 		if(i == 1 && j == 1){
 			if(m[1][1] == FRONT_COLOR) 	return Square.F5;
 			if(m[1][1] == BACK_COLOR) 	return Square.B5;

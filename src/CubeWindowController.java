@@ -48,7 +48,12 @@ public class CubeWindowController {
 				}
 			};
 		
-		c = new Cube(aux);
+		try {
+			c = new Cube(aux);
+		} catch (Cube.InvalidCubeException e) {
+			e.printStackTrace();
+		}
+		//c = new Cube();
 		ckb_clockwise.setSelected(true);
 		System.out.println(c);
 		
