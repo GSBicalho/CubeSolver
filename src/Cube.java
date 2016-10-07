@@ -1,8 +1,8 @@
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Cube {
 	public final Color FRONT_COLOR = Color.RED;
@@ -59,31 +59,64 @@ public class Cube {
 	
 
 	public Side up = new Side();
-	private Side down = new Side();
-	private Side left = new Side();
-	private Side right = new Side();
-	private Side front = new Side();
-	private Side back = new Side();
+	public Side down = new Side();
+	public Side left = new Side();
+	public Side right = new Side();
+	public Side front = new Side();
+	public Side back = new Side();
 	
 	public class Side{
 		Square[][] m = new Square[3][3];
+
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof Side)) return false;
+			Side other = (Side) obj;
+			boolean ret = true;
+			for (int i = 0; i < m.length; i++) {
+				for (int j = 0, squaresLength = m[i].length; j < squaresLength; j++) {
+					ret = ret && (m[i][j].equals(other.m[i][j]));
+				}
+			}
+			return ret;
+		}
 	}
-	
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Cube)) return false;
+		Cube other = (Cube) obj;
+
+		boolean ret = up.equals(other.up);
+		ret = ret && down.equals(other.down);
+		ret = ret && left.equals(other.left);
+		ret = ret && right.equals(other.right);
+		ret = ret && front.equals(other.front);
+		return ret && back.equals(other.back);
+
+	}
+
 	public void reset(){
-		for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++) up.m[i][j] = INIT_UP[i][j];
-		for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++) down.m[i][j] = INIT_DOWN[i][j];
+		for(int i = 0; i < 3; i++)
+			System.arraycopy(INIT_UP[i], 0, up.m[i], 0, 3);
+		for(int i = 0; i < 3; i++)
+			System.arraycopy(INIT_DOWN[i], 0, down.m[i], 0, 3);
 		
-		for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++) left.m[i][j] = INIT_LEFT[i][j];
-		for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++) right.m[i][j] = INIT_RIGHT[i][j];
+		for(int i = 0; i < 3; i++)
+			System.arraycopy(INIT_LEFT[i], 0, left.m[i], 0, 3);
+		for(int i = 0; i < 3; i++)
+			System.arraycopy(INIT_RIGHT[i], 0, right.m[i], 0, 3);
 		
-		for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++) front.m[i][j] = INIT_FRONT[i][j];
-		for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++) back.m[i][j] = INIT_BACK[i][j];
+		for(int i = 0; i < 3; i++)
+			System.arraycopy(INIT_FRONT[i], 0, front.m[i], 0, 3);
+		for(int i = 0; i < 3; i++)
+			System.arraycopy(INIT_BACK[i], 0, back.m[i], 0, 3);
 	}
 	
 	private boolean matrixContains(Square[][] m, Square s){
-		for(int i = 0; i < m.length; i++){
-			for(int j = 0; j < m[i].length; j++){
-				if(m[i][j] == s) return true;
+		for (Square[] aM : m) {
+			for (Square anAM : aM) {
+				if (anAM == s) return true;
 			}
 		}
 		
@@ -136,24 +169,22 @@ public class Cube {
 		rotateMatrix(u, true);
 		rotateMatrix(u, true);
 		*/
-		
+		Side n = clockwise ? l : r;
+
+		Square[] aux = {d.m[0][0], d.m[0][1], d.m[0][2]};
 		if(clockwise){
-			Square[] aux = {d.m[0][0], d.m[0][1], d.m[0][2]};
 			passFirstLine(r, d);
 			passFirstLine(u, r);
 			passFirstLine(l, u);
-			l.m[0][0] = aux[0];
-			l.m[0][1] = aux[1];
-			l.m[0][2] = aux[2];
 		}else{
-			Square[] aux = {d.m[0][0], d.m[0][1], d.m[0][2]};
 			passFirstLine(l, d);
 			passFirstLine(u, l);
 			passFirstLine(r, u);
-			r.m[0][0] = aux[0];
-			r.m[0][1] = aux[1];
-			r.m[0][2] = aux[2];
 		}
+		n.m[0][0] = aux[0];
+		n.m[0][1] = aux[1];
+		n.m[0][2] = aux[2];
+
 		/*
 		rotateMatrix(u, true);
 		rotateMatrix(u, true);
@@ -291,30 +322,30 @@ public class Cube {
 	}
 	
 	public void executeCommand(String c){
-		switch(c){
-		case "U":  case "u":  turnUp(true); break;
-		case "U'": case "u'": turnUp(false); break;
-		case "U2": case "u2": turnUp(true); turnUp(true); break;
+		switch(c.toUpperCase()){
+		case "U":  turnUp(true); break;
+		case "U'": turnUp(false); break;
+		case "U2": turnUp(true); turnUp(true); break;
 		
-		case "D":  case "d":  turnDown(true); break;
-		case "D'": case "d'": turnDown(false); break;
-		case "D2": case "d2": turnDown(true); turnDown(true); break;
+		case "D":  turnDown(true); break;
+		case "D'": turnDown(false); break;
+		case "D2": turnDown(true); turnDown(true); break;
 		
-		case "L":  case "l":  turnLeft(true); break;
-		case "L'": case "l'": turnLeft(false); break;
-		case "L2": case "l2": turnLeft(true); turnLeft(true); break;
+		case "L":  turnLeft(true); break;
+		case "L'": turnLeft(false); break;
+		case "L2": turnLeft(true); turnLeft(true); break;
 		
-		case "R":  case "r":  turnRight(true); break;
-		case "R'": case "r'": turnRight(false); break;
-		case "R2": case "r2": turnRight(true); turnRight(true); break;
+		case "R":  turnRight(true); break;
+		case "R'": turnRight(false); break;
+		case "R2": turnRight(true); turnRight(true); break;
 		
-		case "F":  case "f":  turnFront(true); break;
-		case "F'": case "f'": turnFront(false); break;
-		case "F2": case "f2": turnFront(true); turnFront(true); break;
+		case "F":  turnFront(true); break;
+		case "F'": turnFront(false); break;
+		case "F2": turnFront(true); turnFront(true); break;
 		
-		case "B":  case "b":  turnBack(true); break;
-		case "B'": case "b'": turnBack(false); break;
-		case "B2": case "b2": turnBack(true); turnBack(true); break;
+		case "B":  turnBack(true); break;
+		case "B'": turnBack(false); break;
+		case "B2": turnBack(true); turnBack(true); break;
 		}
 	}
 	
