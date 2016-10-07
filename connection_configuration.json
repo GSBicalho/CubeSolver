@@ -1,0 +1,5 @@
+{
+	"user"   : "g8937204",
+	"pass"   : "4703es",
+	"db_url" : "jdbc:oracle:thin:@localhost:1521:xe"
+}
