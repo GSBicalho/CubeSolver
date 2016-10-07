@@ -57,7 +57,6 @@ public class Cube {
 										  {Square.D4, Square.D5, Square.D6},
 										  {Square.D7, Square.D8, Square.D9}};
 	
-
 	public Side up = new Side();
 	public Side down = new Side();
 	public Side left = new Side();
@@ -281,6 +280,23 @@ public class Cube {
 	
 	public Cube (){
 		reset();
+	}
+	
+	public Cube clone(){
+		Cube c = new Cube();
+		for(int i = 0; i < c.front.m.length; i++){
+			for(int j = 0; j < c.front.m[i].length; j++){
+				c.front.m[i][j] = front.m[i][j];
+				c.back.m[i][j] = back.m[i][j];
+				
+				c.left.m[i][j] = left.m[i][j];
+				c.right.m[i][j] = right.m[i][j];
+				
+				c.up.m[i][j] = up.m[i][j];
+				c.down.m[i][j] = down.m[i][j];
+			}
+		}
+		return c;
 	}
 	
 	public String getSquareColorName(Square s){
