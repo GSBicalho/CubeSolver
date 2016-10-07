@@ -5,12 +5,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Cube {
-	public final Color FRONT_COLOR = Color.RED;
-	public final Color BACK_COLOR = Color.ORANGE;
-	public final Color LEFT_COLOR = Color.BLUE;
-	public final Color RIGHT_COLOR = Color.GREEN;
-	public final Color UP_COLOR = Color.YELLOW;
-	public final Color DOWN_COLOR = Color.WHITE;
+	public static final Color FRONT_COLOR = Color.RED;
+	public static final Color BACK_COLOR = Color.ORANGE;
+	public static final Color LEFT_COLOR = Color.BLUE;
+	public static final Color RIGHT_COLOR = Color.GREEN;
+	public static final Color UP_COLOR = Color.YELLOW;
+	public static final Color DOWN_COLOR = Color.WHITE;
 	
 	enum Square{
 		F1, F2, F3,
@@ -346,26 +346,39 @@ public class Cube {
 	}
 	
 	public Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
+		Color[][] r = new Color[3][3];
+		r[1][1] = m[1][1];
+		
 		if(clockwise){
 			Color aux = m[0][0];
-			m[0][0] = m[2][0];
-			m[2][0] = m[2][2];
-			m[2][2] = m[0][2];
-			m[0][2] = aux;
+			r[0][0] = m[2][0];
+			r[2][0] = m[2][2];
+			r[2][2] = m[0][2];
+			r[0][2] = aux;
 			
 			aux = m[0][1];
-			m[0][1] = m[1][0];
-			m[1][0] = m[2][1];
-			m[2][1] = m[1][2];
-			m[1][2] = aux;
+			r[0][1] = m[1][0];
+			r[1][0] = m[2][1];
+			r[2][1] = m[1][2];
+			r[1][2] = aux;
 			
-			return m;
+			return r;
 		}else{
-			m = rotateColorMatrix(m, true);
-			m = rotateColorMatrix(m, true);
-			m = rotateColorMatrix(m, true);
-			return m;
+			r = rotateColorMatrix(m, true);
+			r = rotateColorMatrix(r, true);
+			r = rotateColorMatrix(r, true);
+			return r;
 		}
+	}
+	
+	public static Color[][] copyColorMatrix(Color[][] m){
+		Color[][] result = new Color[3][3];
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				result[i][j] = m[i][j];
+			}
+		}
+		return result;
 	}
 	
 	public Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
@@ -380,6 +393,14 @@ public class Cube {
 			if(m[1][1] == DOWN_COLOR) 	return Square.D5;
 		}
 		
+		m = copyColorMatrix(m);
+		
+		u = copyColorMatrix(u);
+		d = copyColorMatrix(d);
+		
+		l = copyColorMatrix(l);
+		r = copyColorMatrix(r);
+		
 		//we rotate them, so we only have to check [0,0] and [0,1]
 		if(i == 0 && j == 2 || i == 1 && j == 2){
 			m = rotateColorMatrix(m, false);
@@ -389,7 +410,7 @@ public class Cube {
 			r = d;
 			d = l;
 			l = aux;
-		}else if(i == 2 && j == 0 || i == 0 && j == 1){
+		}else if(i == 2 && j == 0 || i == 1 && j == 0){
 			m = rotateColorMatrix(m, true);
 			
 			Color[][] aux = u;
@@ -398,8 +419,7 @@ public class Cube {
 			d = r;
 			r = aux;
 		}else if(i == 2 && j == 2 || i == 2 && j == 1){
-			m = rotateColorMatrix(m, true);
-			m = rotateColorMatrix(m, true);
+			m = rotate2ColorMatrix(m);
 			
 			Color[][] aux = u;
 			u = d;
@@ -444,9 +464,8 @@ public class Cube {
 				if(upFromSearched == BACK_COLOR) 	return Square.D8;
 			}
 		}else{ //se for um dos cantos
-			Color searched = m[0][1];
-			Color upFromSearched = u[0][3];
-			Color leftFromSearched = l[0][0];
+			Color searched = m[0][0];
+			Color upFromSearched = u[0][2];
 			
 			if(searched == FRONT_COLOR){
 				if(upFromSearched == UP_COLOR) 		return Square.F1;
@@ -518,7 +537,7 @@ public class Cube {
 		String result = "{\n";
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
-				result += getSquareColorName(left.m[i][j]) + ", ";
+				result += front.m[i][j] + ", ";
 			}
 			result += "\n";
 		}
