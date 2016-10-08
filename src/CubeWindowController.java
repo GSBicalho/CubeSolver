@@ -394,8 +394,8 @@ public class CubeWindowController {
 				
 				if(p.contains(new Point2D(event.getX(), event.getY()))){
 					side = SIDE_UP;
-					foundI = j;
-					foundJ = i;
+					foundI = i;
+					foundJ = j;
 				}
 			}
 		}
@@ -445,23 +445,12 @@ public class CubeWindowController {
 			}
 		}
 		
-		if(side >= 0 && foundI == 1 && foundJ == 1){
-			currentColor = sides[side][1][1];
-		}
-		
-		switch(side){
-		case SIDE_FRONT:
+		if(side >= 0){
 			if(foundI == 1 && foundJ == 1){
-				currentColor = paintFront[1][1];
+				currentColor = sides[side][1][1];
+			}else{
+				sides[side][foundI][foundJ] = currentColor;
 			}
-			break;
-		case SIDE_BACK:
-			
-			break;
-		case SIDE_LEFT:
-		case SIDE_RIGHT:
-		case SIDE_UP:
-		case SIDE_DOWN:
 		}
 		
 		drawPaint();
