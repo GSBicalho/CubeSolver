@@ -1,6 +1,9 @@
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
+import javafx.scene.ImageCursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
@@ -8,6 +11,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -51,6 +55,8 @@ public class CubeWindowController {
 
 	Color currentColor = Cube.FRONT_COLOR;
 
+	Cursor paintBucketCursor, eyedropperCursor;
+
 	public void initialize() {
 		c = new Cube();
 		ckb_clockwise.setSelected(true);
@@ -58,6 +64,12 @@ public class CubeWindowController {
 		
 		gc = cv_canvas.getGraphicsContext2D();
 		
+		Image paintBucketImage = new Image("Cursors/paint_bucket.png");
+		paintBucketCursor = new ImageCursor(paintBucketImage, paintBucketImage.getWidth()/2, paintBucketImage.getHeight()/2);
+
+		Image eyedropperBucketImage = new Image("Cursors/eyedropper.png");
+		eyedropperCursor = new ImageCursor(eyedropperBucketImage, eyedropperBucketImage.getWidth()/2, eyedropperBucketImage.getHeight()/2);
+
 		c.draw(gc);
 	}
 	
@@ -181,15 +193,65 @@ public class CubeWindowController {
 		c.draw(gc);
 	}
 
+	@FXML protected void canvasOnMouseExited(MouseEvent event) {}
+
 	@FXML protected void canvasOnMouseMoved(MouseEvent event) {
 		//System.out.println(event.getX() + " " + event.getY());
+		if(isPainting){
+			Color[][][] sides = {paintFront, paintBack, paintLeft, paintRight, paintUp, paintDown};
+			ClickCoord cc = getClickCoord((int)event.getX(), (int)event.getY());
+
+			if(cc != null){
+				if(cc.i == 1 && cc.j == 1){
+					if(!cv_canvas.getScene().getCursor().equals(eyedropperCursor)){
+						cv_canvas.getScene().setCursor(eyedropperCursor);
+					}
+				}else{
+					if(!cv_canvas.getScene().getCursor().equals(paintBucketCursor)){
+						cv_canvas.getScene().setCursor(paintBucketCursor);
+					}
+				}
+			}else{
+				if(!cv_canvas.getScene().getCursor().equals(Cursor.DEFAULT)){
+					cv_canvas.getScene().setCursor(Cursor.DEFAULT);
+				}
+			}
+		}
 	}
 
 	@FXML protected void canvasOnMouseClicked(MouseEvent event) {
+		if(isPainting){
+			ClickCoord cc = getClickCoord((int)event.getX(), (int)event.getY());
+			Color[][][] sides = {paintFront, paintBack, paintLeft, paintRight, paintUp, paintDown};
+
+			if(cc != null){
+				if(cc.i == 1 && cc.j == 1){
+					currentColor = sides[cc.side][1][1];
+				}else{
+					sides[cc.side][cc.i][cc.j] = currentColor;
+				}
+			}
+
+			drawPaint();
+		}
+	}
+
+	private class ClickCoord{
+		int side;
+		int i, j;
+
+		public ClickCoord(int side, int i, int j){
+			this.side = side;
+			this.i = i;
+			this.j = j;
+		}
+	}
+
+	protected ClickCoord getClickCoord(int x, int y){
+
 		int side = -1;
 		int foundI = -1, foundJ = -1;
 
-		Color[][][] sides = {paintFront, paintBack, paintLeft, paintRight, paintUp, paintDown};
 		final int SIDE_FRONT = 0;
 		final int SIDE_BACK = 1;
 		final int SIDE_LEFT = 2;
@@ -202,9 +264,9 @@ public class CubeWindowController {
 			for(int j = 0; j < 3; j++){
 				int startX = hPadding + hOffset + sizeOfSquare * (3 + i);
 				int startY = vOffset + sizeOfSquare*(4 + j);
-
-				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
-				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+				
+				if(startX < x && x < startX + sizeOfSquare &&
+				   startY < y && y < startY + sizeOfSquare){
 					side = SIDE_FRONT;
 					foundI = j;
 					foundJ = i;
@@ -217,9 +279,9 @@ public class CubeWindowController {
 			for(int j = 0; j < 3; j++){
 				int startX = hOffset + sizeOfSquare * i;
 				int startY = vOffset + sizeOfSquare*(4 + j);
-
-				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
-				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+				
+				if(startX < x && x < startX + sizeOfSquare &&
+				   startY < y && y < startY + sizeOfSquare){
 					side = SIDE_LEFT;
 					foundI = j;
 					foundJ = i;
@@ -232,9 +294,9 @@ public class CubeWindowController {
 			for(int j = 0; j < 3; j++){
 				int startX = hPadding + hOffset + sizeOfSquare * (3 + i);
 				int startY = vPadding + vOffset + sizeOfSquare*(4 + 3 + j);
-
-				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
-				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+				
+				if(startX < x && x < startX + sizeOfSquare &&
+				   startY < y && y < startY + sizeOfSquare){
 					side = SIDE_DOWN;
 					foundI = j;
 					foundJ = i;
@@ -263,15 +325,15 @@ public class CubeWindowController {
 				Double[] xAndY = {xs[0], ys[0], xs[1], ys[1], xs[2], ys[2], xs[3], ys[3]};
 				Polygon p = new Polygon();
 				p.getPoints().addAll(xAndY);
-
-				if(p.contains(new Point2D(event.getX(), event.getY()))){
+				
+				if(p.contains(new Point2D(x, y))){
 					side = SIDE_UP;
 					foundI = i;
 					foundJ = j;
 				}
 			}
 		}
-
+		
 		//right side
 		for(int i = 0; i < 3; i++){
 			int initialPointX = hPadding*2 + hOffset + sizeOfSquare * 6;
@@ -293,8 +355,8 @@ public class CubeWindowController {
 				Double[] xAndY = {xs[0], ys[0], xs[1], ys[1], xs[2], ys[2], xs[3], ys[3]};
 				Polygon p = new Polygon();
 				p.getPoints().addAll(xAndY);
-
-				if(p.contains(new Point2D(event.getX(), event.getY()))){
+				
+				if(p.contains(new Point2D(x, y))){
 					side = SIDE_RIGHT;
 					foundI = j;
 					foundJ = i;
@@ -307,9 +369,9 @@ public class CubeWindowController {
 			for(int j = 0; j < 3; j++){
 				int startX = hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3;
 				int startY = vPadding + vOffset + sizeOfSquare*(2 + j) + 2;
-
-				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
-				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+				
+				if(startX < x && x < startX + sizeOfSquare &&
+				   startY < y && y < startY + sizeOfSquare){
 					side = SIDE_BACK;
 					foundI = j;
 					foundJ = i;
@@ -318,14 +380,9 @@ public class CubeWindowController {
 		}
 
 		if(side >= 0){
-			if(foundI == 1 && foundJ == 1){
-				currentColor = sides[side][1][1];
-			}else{
-				sides[side][foundI][foundJ] = currentColor;
-			}
+			return new ClickCoord(side, foundI, foundJ);
 		}
-
-		drawPaint();
+		return null;
 	}
 
 	protected void drawPaint(){
