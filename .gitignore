@@ -8,6 +8,8 @@ Desktop.ini
 # java compiled classes
 bin/*.class
 
+twophase.jar
+
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
