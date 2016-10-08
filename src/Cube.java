@@ -2,6 +2,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -740,22 +741,79 @@ public class Cube {
 		}
 	}
 	
-	public enum CubeletName{
-		URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB
-	}
-	
-	public enum CubeletRotation{
-		R1(0), R2(1), R3(2);
+	public enum CornerCubeletName{
+		URF(0), UFL(1), ULB(2), UBR(3), DFR(4), DLF(5), DBL(6), DRB(7);
+		
 		public int v;
-		CubeletRotation(int v){
+		CornerCubeletName(int v){
 			this.v = v;
 		}
 	}
 	
-	public class Cubelet{
-		public CubeletName name;
-		public CubeletRotation rotation;
+	public enum CornerCubeletRotation{
+		R1(0), R2(1), R3(2);
+		
+		public int v;
+		CornerCubeletRotation(int v){
+			this.v = v;
+		}
 	}
 	
-	public void turnToCubelets(){}
+	public class CornerCubelet{
+		public CornerCubeletName name;
+		public CornerCubeletRotation rotation;
+		
+		public CornerCubelet(CornerCubeletName name, CornerCubeletRotation rotation){
+			this.name = name;
+			this.rotation = rotation;
+		}
+	}
+	
+	public CornerCubelet[] getCornerCubelets(){
+		CornerCubelet[] m = new CornerCubelet[8];
+		
+		int[][] corners = {{0,0},{0,2},{2,0},{2,2}};
+		
+		for(int i = 0; i < 4; i++){
+			Square s = front.m[corners[i][0]][corners[i][1]];
+			m[i] = new CornerCubelet(squareToCornerCubelet(s), null);
+
+			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
+				m[i].rotation = CornerCubeletRotation.R1;
+			}else if(matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s)){
+				m[i].rotation = CornerCubeletRotation.R2;
+			}else{
+				m[i].rotation = CornerCubeletRotation.R3;
+			}
+		}
+		
+		for(int i = 0; i < 4; i++){
+			Square s = back.m[corners[i][0]][corners[i][1]];
+			m[i + 4] = new CornerCubelet(squareToCornerCubelet(s), null);
+			
+			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
+				m[i].rotation = CornerCubeletRotation.R1;
+			}else if(matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s)){
+				m[i].rotation = CornerCubeletRotation.R2;
+			}else{
+				m[i].rotation = CornerCubeletRotation.R3;
+			}
+		}
+		
+		return m;
+	}
+	
+	public CornerCubeletName squareToCornerCubelet(Square s){
+		if(s == Square.U1 || s == Square.F1 || s == Square.L3) return CornerCubeletName.UFL;
+		if(s == Square.U3 || s == Square.R1 || s == Square.F3) return CornerCubeletName.URF;
+		if(s == Square.U7 || s == Square.B1 || s == Square.R3) return CornerCubeletName.UBR;
+		if(s == Square.U9 || s == Square.L1 || s == Square.B3) return CornerCubeletName.ULB;
+		
+		if(s == Square.D1 || s == Square.B9 || s == Square.L7) return CornerCubeletName.DBL;
+		if(s == Square.D3 || s == Square.F9 || s == Square.R7) return CornerCubeletName.DFR;
+		if(s == Square.D7 || s == Square.L9 || s == Square.F7) return CornerCubeletName.DLF;
+		if(s == Square.D9 || s == Square.R9 || s == Square.B7) return CornerCubeletName.DRB;
+		
+		return null;
+	}
 }
