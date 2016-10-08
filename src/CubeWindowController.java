@@ -1,4 +1,6 @@
 
+import java.util.Optional;
+
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -67,6 +69,7 @@ public class CubeWindowController {
 	Cursor paintBucketCursor, eyedropperCursor;
 
 	Alert loadingAlert = null;
+	ButtonType loadingAlertCancelButton;
 
 	public void initialize() {
 		c = new Cube();
@@ -107,11 +110,14 @@ public class CubeWindowController {
 		hb.getChildren().add(vb);
 
 		loadingAlert.getDialogPane().setContent(hb);
-
-		loadingAlert.getButtonTypes().add(0, new ButtonType("Cancel", ButtonData.CANCEL_CLOSE));
+		
+		loadingAlertCancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+		loadingAlert.getButtonTypes().add(loadingAlertCancelButton);
 	}
 	
-	
+	protected void createAlgorithmSelectorAlert(){
+		
+	}
 	
 	@FXML protected void btnUpButton(ActionEvent event) {
 		c.turnUp(ckb_clockwise.isSelected());
@@ -176,9 +182,11 @@ public class CubeWindowController {
 		Task<String> t = new Task<String>(){
 			{
                 setOnSucceeded(workerStateEvent -> {
-                	tf_command.setText(getValue());
-                    loadingAlert.close();
-                    c.draw(gc);
+                	if(loadingAlert.isShowing()){
+	                	tf_command.setText(getValue());
+	                    loadingAlert.close();
+	                    c.draw(gc);
+                	}
                 });
 
                 setOnFailed(workerStateEvent -> getException().printStackTrace());
@@ -193,11 +201,16 @@ public class CubeWindowController {
         loadingThread.setDaemon(true);
         loadingThread.start();
 
-		loadingAlert.showAndWait();
+        Optional<ButtonType> result = loadingAlert.showAndWait();
+        
+        if(loadingThread.isAlive()){
+        	loadingThread.interrupt();
+        }
 	}
 
 	private String solve(){
-		return Solver.solveCubeSimpleSearch(c, 4);
+		
+		return Solver.solveCubeSimpleSearch(c.clone(), 4);
 	}
 
 	private void setPaintingMode(boolean value){

@@ -65,6 +65,11 @@
                         <Font size="14.0" />
                      </font>
                   </Button>
+                  <Button fx:id="btn_solve" layoutX="105.0" layoutY="277.0" mnemonicParsing="false" onAction="#btnSolveButton" prefHeight="30.0" prefWidth="79.0" text="Solve">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
                </children>
             </AnchorPane>
             <Canvas fx:id="cv_canvas" height="400.0" onMouseClicked="#canvasOnMouseClicked" onMouseMoved="#canvasOnMouseMoved" width="442.0" />
