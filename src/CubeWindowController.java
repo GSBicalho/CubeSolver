@@ -1,4 +1,5 @@
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
@@ -9,12 +10,19 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
 
 public class CubeWindowController {
 	@FXML public CheckBox ckb_clockwise;
@@ -30,6 +38,7 @@ public class CubeWindowController {
 
 	@FXML public Button btn_reset;
 	@FXML public Button btn_paint;
+	@FXML public Button btn_solve;
 
 	Cube c;
 	GraphicsContext gc;
@@ -57,6 +66,8 @@ public class CubeWindowController {
 
 	Cursor paintBucketCursor, eyedropperCursor;
 
+	Alert loadingAlert = null;
+
 	public void initialize() {
 		c = new Cube();
 		ckb_clockwise.setSelected(true);
@@ -70,9 +81,36 @@ public class CubeWindowController {
 		Image eyedropperBucketImage = new Image("Cursors/eyedropper.png");
 		eyedropperCursor = new ImageCursor(eyedropperBucketImage, eyedropperBucketImage.getWidth()/2, eyedropperBucketImage.getHeight()/2);
 
+		createLoadingAlert();
+
 		c.draw(gc);
 	}
 	
+	protected void createLoadingAlert(){
+		loadingAlert = new Alert(Alert.AlertType.NONE);
+		loadingAlert.setHeaderText(null);
+		loadingAlert.setTitle("Loading");
+		loadingAlert.setContentText(null);
+
+		Label l = new Label("Loading Answer...          ");
+		l.setFont(Font.font(14));
+
+		VBox vb = new VBox();
+		vb.getChildren().add(l);
+		vb.setStyle("-fx-alignment:center");
+
+		ProgressIndicator loadingIndicator = new ProgressIndicator();
+
+		HBox hb = new HBox();
+		hb.getChildren().add(loadingIndicator);
+		hb.getChildren().add(new Label("          "));
+		hb.getChildren().add(vb);
+
+		loadingAlert.getDialogPane().setContent(hb);
+
+		loadingAlert.getButtonTypes().add(0, new ButtonType("Cancel", ButtonData.CANCEL_CLOSE));
+	}
+
 	@FXML protected void btnUpButton(ActionEvent event) {
 		c.turnUp(ckb_clockwise.isSelected());
 		System.out.println(c);
@@ -130,33 +168,56 @@ public class CubeWindowController {
 		}
 	}
 
+	@FXML protected void btnSolveButton(ActionEvent event){
+
+
+		Task<String> t = new Task<String>(){
+			{
+                setOnSucceeded(workerStateEvent -> {
+                	tf_command.setText(getValue());
+                    loadingAlert.close();
+                });
+
+                setOnFailed(workerStateEvent -> getException().printStackTrace());
+            }
+
+			@Override
+			protected String call() throws Exception {
+				return solve();
+			}};
+
+		Thread loadingThread = new Thread(t, "cube-solver");
+        loadingThread.setDaemon(true);
+        loadingThread.start();
+
+		loadingAlert.showAndWait();
+	}
+
+	private String solve(){
+		try {
+			Thread.sleep(2000l); //simulates loading, for now
+		} catch (InterruptedException e) {}
+		return "comandos de solucao";
+	}
+
 	private void setPaintingMode(boolean value){
+		isPainting = value;
+
+		btn_front.setDisable(value);
+		btn_back.setDisable(value);
+		btn_left.setDisable(value);
+		btn_right.setDisable(value);
+		btn_up.setDisable(value);
+		btn_down.setDisable(value);
+		btn_solve.setDisable(value);
+		tf_command.setDisable(value);
+
 		if(!value){
-			isPainting = false;
-
-			btn_front.setDisable(false);
-			btn_back.setDisable(false);
-			btn_left.setDisable(false);
-			btn_right.setDisable(false);
-			btn_up.setDisable(false);
-			btn_down.setDisable(false);
-			tf_command.setDisable(false);
-
 			btn_reset.setText("Reset");
 			btn_paint.setText("Paint");
 
 			c.draw(gc);
 		}else{
-			isPainting = true;
-
-			btn_front.setDisable(true);
-			btn_back.setDisable(true);
-			btn_left.setDisable(true);
-			btn_right.setDisable(true);
-			btn_up.setDisable(true);
-			btn_down.setDisable(true);
-			tf_command.setDisable(true);
-
 			btn_reset.setText("Confirm");
 			btn_paint.setText("Cancel");
 
