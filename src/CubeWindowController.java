@@ -110,7 +110,9 @@ public class CubeWindowController {
 
 		loadingAlert.getButtonTypes().add(0, new ButtonType("Cancel", ButtonData.CANCEL_CLOSE));
 	}
-
+	
+	
+	
 	@FXML protected void btnUpButton(ActionEvent event) {
 		c.turnUp(ckb_clockwise.isSelected());
 		System.out.println(c);
@@ -176,6 +178,7 @@ public class CubeWindowController {
                 setOnSucceeded(workerStateEvent -> {
                 	tf_command.setText(getValue());
                     loadingAlert.close();
+                    c.draw(gc);
                 });
 
                 setOnFailed(workerStateEvent -> getException().printStackTrace());
@@ -194,10 +197,7 @@ public class CubeWindowController {
 	}
 
 	private String solve(){
-		try {
-			Thread.sleep(2000l); //simulates loading, for now
-		} catch (InterruptedException e) {}
-		return "comandos de solucao";
+		return Solver.solveCubeSimpleSearch(c, 4);
 	}
 
 	private void setPaintingMode(boolean value){
