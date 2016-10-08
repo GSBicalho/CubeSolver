@@ -52,7 +52,7 @@ public class Solver {
 	}
 
 	private static boolean simpleSearch(Cube scrambled, int depth, Stack<String> pathList) {
-		return simpleSearch(0, scrambled.clone(), depth, pathList, "", -1, false);
+		return simpleSearch(0, scrambled.clone(), depth, pathList, "", -1);
 	}
 
 	private static boolean simpleSearch(
@@ -61,8 +61,7 @@ public class Solver {
 											   int depth,
 											   Stack<String> path,
 											   String move,
-											   int lastMoveCategory,
-											   boolean lockOppositeCategory
+											   int lastMoveCategory
 	){
 		scrambled.executeCommands(move);
 		while (solved(step, scrambled)) {
@@ -80,15 +79,12 @@ public class Solver {
 			if (i == lastMoveCategory) {
 				continue;
 			}
-			if (lockOppositeCategory) {
-				if (i + lastMoveCategory == moves_to_try[step].length - 1) {
-					continue;
-				}
+			if (i + lastMoveCategory == moves_to_try[step].length - 1 && lastMoveCategory >= moves_to_try[step].length / 2) {
+				continue;
 			}
 			for (String m : moves_to_try[step][i]) {
-				boolean lock = (i + lastMoveCategory == moves_to_try[step].length -1);
 				Cube clone = scrambled.clone();
-				if (simpleSearch(step, clone, depth - 1, path, m, i, lock)) {
+				if (simpleSearch(step, clone, depth - 1, path, m, i)) {
 					path.push(move);
 					return true;
 				}
