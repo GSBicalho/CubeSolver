@@ -315,7 +315,15 @@ public class CubeWindowController {
 	
 	@FXML protected void canvasOnMouseClicked(MouseEvent event) {
 		int side = -1;
-		int foundI, foundJ;
+		int foundI = -1, foundJ = -1;
+		
+		Color[][][] sides = {paintFront, paintBack, paintLeft, paintRight, paintUp, paintDown};
+		final int SIDE_FRONT = 0;
+		final int SIDE_BACK = 1;
+		final int SIDE_LEFT = 2;
+		final int SIDE_RIGHT = 3;
+		final int SIDE_UP = 4;
+		final int SIDE_DOWN = 5;
 		
 		//front side
 		for(int i = 0; i < 3; i++){
@@ -325,7 +333,7 @@ public class CubeWindowController {
 				
 				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
 				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
-					side = 0;
+					side = SIDE_FRONT;
 					foundI = j;
 					foundJ = i;
 				}
@@ -340,7 +348,7 @@ public class CubeWindowController {
 				
 				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
 				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
-					side = 1;
+					side = SIDE_LEFT;
 					foundI = j;
 					foundJ = i;
 				}
@@ -355,7 +363,7 @@ public class CubeWindowController {
 				
 				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
 				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
-					side = 2;
+					side = SIDE_DOWN;
 					foundI = j;
 					foundJ = i;
 				}
@@ -385,7 +393,7 @@ public class CubeWindowController {
 				p.getPoints().addAll(xAndY);
 				
 				if(p.contains(new Point2D(event.getX(), event.getY()))){
-					side = 3;
+					side = SIDE_UP;
 					foundI = j;
 					foundJ = i;
 				}
@@ -415,7 +423,7 @@ public class CubeWindowController {
 				p.getPoints().addAll(xAndY);
 				
 				if(p.contains(new Point2D(event.getX(), event.getY()))){
-					side = 4;
+					side = SIDE_RIGHT;
 					foundI = j;
 					foundJ = i;
 				}
@@ -430,13 +438,32 @@ public class CubeWindowController {
 				
 				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
 				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
-					side = 5;
+					side = SIDE_BACK;
 					foundI = j;
 					foundJ = i;
 				}
 			}
 		}
 		
+		if(side >= 0 && foundI == 1 && foundJ == 1){
+			currentColor = sides[side][1][1];
+		}
 		
+		switch(side){
+		case SIDE_FRONT:
+			if(foundI == 1 && foundJ == 1){
+				currentColor = paintFront[1][1];
+			}
+			break;
+		case SIDE_BACK:
+			
+			break;
+		case SIDE_LEFT:
+		case SIDE_RIGHT:
+		case SIDE_UP:
+		case SIDE_DOWN:
+		}
+		
+		drawPaint();
 	}
 }
