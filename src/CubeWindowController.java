@@ -263,7 +263,7 @@ public class CubeWindowController {
 
 	private String solve(boolean withHeuristics, int depth){
 		if(withHeuristics){
-			return Solver.solveCubeSimpleSearch(c.clone(), depth); //change to heuristics call
+			return Solver.solveCubeHeuristicSearch(c.clone(), depth);
 		}else{
 			return Solver.solveCubeSimpleSearch(c.clone(), depth);
 		}
