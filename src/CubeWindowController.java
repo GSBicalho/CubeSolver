@@ -3,6 +3,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
@@ -35,6 +37,19 @@ public class CubeWindowController {
 	public Color[][] paintRight;
 	public Color[][] paintUp;
 	public Color[][] paintDown;
+	
+
+	int hOffset = 10;
+	int vOffset = 10;
+	int hPadding = 4;
+	int vPadding = 4;
+	
+	int hDiag = 21;
+	int vDiag = 21;
+	
+	int sizeOfSquare = 35;
+	
+	Color currentColor = Cube.FRONT_COLOR;
 	
 	public void initialize() {
 		Color[][][] aux = {
@@ -126,12 +141,24 @@ public class CubeWindowController {
 			System.out.println(c);
 			c.draw(gc);
 		}else{
-			
+			try{
+				Color[][][] sides = {paintFront, paintBack, paintLeft, paintRight, paintUp, paintDown};
+				Cube newCube = new Cube(sides);
+				c = newCube;
+				setPaintingMode(false);
+			}catch(Cube.InvalidCubeException e){
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setHeaderText("Invalid Cube!");
+				alert.setContentText("The Cube presented is invalid.\nEither it's faces are impossible or not all of them are painted!");
+
+				alert.showAndWait();
+			}
 		}
 	}
 	
-	@FXML protected void btnPaintButton(ActionEvent event) {
-		if(isPainting){
+	private void setPaintingMode(boolean value){
+		if(!value){
 			isPainting = false;
 			
 			btn_front.setDisable(false);
@@ -171,6 +198,10 @@ public class CubeWindowController {
 		}
 	}
 	
+	@FXML protected void btnPaintButton(ActionEvent event) {
+		setPaintingMode(!isPainting);
+	}
+	
 	public Color[][] createCenterOnlyColorMatrix(Color center){
 		Color[][] m = new Color[3][3];
 		for(int i = 0; i < 3; i++){
@@ -182,126 +213,6 @@ public class CubeWindowController {
 		return m;
 	}
 	
-	int hOffset = 10;
-	int vOffset = 10;
-	int hPadding = 4;
-	int vPadding = 4;
-	
-	int hDiag = 21;
-	int vDiag = 21;
-	
-	int sizeOfSquare = 35;
-	
-	Color currentColor = Cube.FRONT_COLOR;
-	
-	protected void drawPaint(){
-		gc.setFill(Color.WHITE);
-		gc.fillRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
-		
-		gc.setFill(Color.BLACK);
-		gc.setStroke(Color.BLACK);
-		gc.setLineWidth(2f);
-		
-		//front side
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				gc.setFill(paintFront[j][i]);
-				gc.fillRect(hPadding + hOffset + sizeOfSquare * (3 + i), vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
-				gc.setStroke(Color.BLACK);
-				gc.strokeRect(hPadding + hOffset + sizeOfSquare * (3 + i),vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
-			}
-		}
-		
-		//left side
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				gc.setFill(paintLeft[j][i]);
-				gc.fillRect(hOffset + sizeOfSquare * i, vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
-				gc.setStroke(Color.BLACK);
-				gc.strokeRect(hOffset + sizeOfSquare * i, vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
-			}
-		}
-		
-		//down side
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				gc.setFill(paintDown[j][i]);
-				gc.fillRect(hPadding + hOffset + sizeOfSquare * (3 + i), vPadding + vOffset + sizeOfSquare*(4 + 3 + j), sizeOfSquare, sizeOfSquare);
-				gc.setStroke(Color.BLACK);
-				gc.strokeRect(hPadding + hOffset + sizeOfSquare * (3 + i),vPadding +  vOffset + sizeOfSquare*(4 + 3 + j), sizeOfSquare, sizeOfSquare);
-			}
-		}
-		
-		//up side
-		for(int i = 0; i < 3; i++){
-			int initialPointX = hPadding + hOffset + sizeOfSquare * 3 + hDiag * 3 + 1;
-			int initialPointY = - vPadding + vOffset + sizeOfSquare*4 - 3 * vDiag;
-			
-			for(int j = 0; j < 3; j++){
-				double[] xs = {
-						initialPointX + sizeOfSquare * j - hDiag * i,
-						initialPointX + sizeOfSquare * (j + 1)  - hDiag * i,
-						initialPointX + sizeOfSquare * (j + 1) - hDiag * (i + 1),
-						initialPointX + sizeOfSquare * j - hDiag * (i + 1),
-				}; 
-				double[] ys = {
-						initialPointY + vDiag * i,
-						initialPointY + vDiag * i,
-						initialPointY + vDiag * (i + 1),
-						initialPointY + vDiag * (i + 1)
-				};
-				gc.setFill(paintUp[i][j]);
-				gc.fillPolygon(xs, ys, 4);
-				gc.setStroke(Color.BLACK);
-				gc.strokePolygon(xs, ys, 4);
-			}
-		}
-		
-		//right side
-		for(int i = 0; i < 3; i++){
-			int initialPointX = hPadding*2 + hOffset + sizeOfSquare * 6;
-			int initialPointY = vOffset + sizeOfSquare*4;
-			
-			for(int j = 0; j < 3; j++){
-				double[] ys = {
-						initialPointY + sizeOfSquare * j - vDiag * i,
-						initialPointY + sizeOfSquare * (j + 1) - vDiag * i,
-						initialPointY + sizeOfSquare * (j + 1) - vDiag * (i + 1),
-						initialPointY + sizeOfSquare * j - vDiag * (i + 1),
-				}; 
-				double[] xs = {
-						initialPointX + hDiag * i,
-						initialPointX + hDiag * i,
-						initialPointX + hDiag * (i + 1),
-						initialPointX + hDiag * (i + 1)
-				};
-				gc.setFill(paintRight[j][i]);
-				gc.fillPolygon(xs, ys, 4);
-				gc.setStroke(Color.BLACK);
-				gc.strokePolygon(xs, ys, 4);
-			}
-		}
-		
-		//back side
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				gc.setFill(paintBack[j][i]);
-				gc.fillRect(hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3, vPadding + vOffset + sizeOfSquare*(2 + j) + 2, sizeOfSquare, sizeOfSquare);
-				gc.setStroke(Color.BLACK);
-				gc.strokeRect(hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3,vPadding +  vOffset + sizeOfSquare*(2 + j) + 2, sizeOfSquare, sizeOfSquare);
-			}
-		}
-		
-		
-		//draw current color square
-		gc.setFill(currentColor);
-		gc.fillRect(hPadding + hOffset + sizeOfSquare * 7 + 5, vPadding + vOffset + sizeOfSquare*(4 + 3), 60, 60);
-		gc.strokeRect(hPadding + hOffset + sizeOfSquare * 7 + 5, vPadding + vOffset + sizeOfSquare*(4 + 3), 60, 60);
-		
-		gc.setFill(Color.BLACK);
-		gc.fillText("Current Color", hPadding + hOffset + sizeOfSquare * 7, vOffset + sizeOfSquare*(4 + 3));
-	}
-
 	@FXML protected void actionEvent_Command(ActionEvent event) {
 		c.executeCommands(tf_command.getText());
 		tf_command.setText("");
@@ -454,5 +365,113 @@ public class CubeWindowController {
 		}
 		
 		drawPaint();
+	}
+
+	protected void drawPaint(){
+		gc.setFill(Color.WHITE);
+		gc.fillRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+		
+		gc.setFill(Color.BLACK);
+		gc.setStroke(Color.BLACK);
+		gc.setLineWidth(2f);
+		
+		//front side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintFront[j][i]);
+				gc.fillRect(hPadding + hOffset + sizeOfSquare * (3 + i), vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hPadding + hOffset + sizeOfSquare * (3 + i),vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		//left side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintLeft[j][i]);
+				gc.fillRect(hOffset + sizeOfSquare * i, vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hOffset + sizeOfSquare * i, vOffset + sizeOfSquare*(4 + j), sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		//down side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintDown[j][i]);
+				gc.fillRect(hPadding + hOffset + sizeOfSquare * (3 + i), vPadding + vOffset + sizeOfSquare*(4 + 3 + j), sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hPadding + hOffset + sizeOfSquare * (3 + i),vPadding +  vOffset + sizeOfSquare*(4 + 3 + j), sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		//up side
+		for(int i = 0; i < 3; i++){
+			int initialPointX = hPadding + hOffset + sizeOfSquare * 3 + hDiag * 3 + 1;
+			int initialPointY = - vPadding + vOffset + sizeOfSquare*4 - 3 * vDiag;
+			
+			for(int j = 0; j < 3; j++){
+				double[] xs = {
+						initialPointX + sizeOfSquare * j - hDiag * i,
+						initialPointX + sizeOfSquare * (j + 1)  - hDiag * i,
+						initialPointX + sizeOfSquare * (j + 1) - hDiag * (i + 1),
+						initialPointX + sizeOfSquare * j - hDiag * (i + 1),
+				}; 
+				double[] ys = {
+						initialPointY + vDiag * i,
+						initialPointY + vDiag * i,
+						initialPointY + vDiag * (i + 1),
+						initialPointY + vDiag * (i + 1)
+				};
+				gc.setFill(paintUp[i][j]);
+				gc.fillPolygon(xs, ys, 4);
+				gc.setStroke(Color.BLACK);
+				gc.strokePolygon(xs, ys, 4);
+			}
+		}
+		
+		//right side
+		for(int i = 0; i < 3; i++){
+			int initialPointX = hPadding*2 + hOffset + sizeOfSquare * 6;
+			int initialPointY = vOffset + sizeOfSquare*4;
+			
+			for(int j = 0; j < 3; j++){
+				double[] ys = {
+						initialPointY + sizeOfSquare * j - vDiag * i,
+						initialPointY + sizeOfSquare * (j + 1) - vDiag * i,
+						initialPointY + sizeOfSquare * (j + 1) - vDiag * (i + 1),
+						initialPointY + sizeOfSquare * j - vDiag * (i + 1),
+				}; 
+				double[] xs = {
+						initialPointX + hDiag * i,
+						initialPointX + hDiag * i,
+						initialPointX + hDiag * (i + 1),
+						initialPointX + hDiag * (i + 1)
+				};
+				gc.setFill(paintRight[j][i]);
+				gc.fillPolygon(xs, ys, 4);
+				gc.setStroke(Color.BLACK);
+				gc.strokePolygon(xs, ys, 4);
+			}
+		}
+		
+		//back side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				gc.setFill(paintBack[j][i]);
+				gc.fillRect(hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3, vPadding + vOffset + sizeOfSquare*(2 + j) + 2, sizeOfSquare, sizeOfSquare);
+				gc.setStroke(Color.BLACK);
+				gc.strokeRect(hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3,vPadding +  vOffset + sizeOfSquare*(2 + j) + 2, sizeOfSquare, sizeOfSquare);
+			}
+		}
+		
+		
+		//draw current color square
+		gc.setFill(currentColor);
+		gc.fillRect(hPadding + hOffset + sizeOfSquare * 7 + 5, vPadding + vOffset + sizeOfSquare*(4 + 3), 60, 60);
+		gc.strokeRect(hPadding + hOffset + sizeOfSquare * 7 + 5, vPadding + vOffset + sizeOfSquare*(4 + 3), 60, 60);
+		
+		gc.setFill(Color.BLACK);
+		gc.fillText("Current Color", hPadding + hOffset + sizeOfSquare * 7, vOffset + sizeOfSquare*(4 + 3));
 	}
 }
