@@ -6,7 +6,7 @@ ehthumbs.db
 Desktop.ini
 
 # java compiled classes
-*.class
+bin/*.class
 
 # Recycle Bin used on file shares
 $RECYCLE.BIN/

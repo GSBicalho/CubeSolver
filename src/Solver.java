@@ -39,20 +39,16 @@ public class Solver {
 		StringBuilder path = new StringBuilder("");
 
 		Stack<String> pathList = new Stack<>();
-		if (!simpleSearch(0, scrambled, depth, pathList)) return "Failed";
+		if (!simpleSearch(scrambled, depth, pathList)) return "Failed";
 		System.out.println("path: " + pathList.toString());
-		while (! pathList.empty()) path.append(pathList.pop()).append(" ");
-		scrambled.executeCommands(path.toString());
-		if (!simpleSearch(1, scrambled, depth*2, pathList)) return "Failed";
-		System.out.println("path: " + pathList.toString());
-		while (! pathList.empty()) path.append(pathList.pop()).append(" ");
+		while (!pathList.empty()) path.append(pathList.pop()).append(" ");
 
 		return path.toString();
 
 	}
 
-	private static boolean simpleSearch(int step, Cube scrambled, int depth, Stack<String> pathList) {
-		return simpleSearch(step, scrambled.clone(), depth, pathList, "", -1, false);
+	private static boolean simpleSearch(Cube scrambled, int depth, Stack<String> pathList) {
+		return simpleSearch(0, scrambled.clone(), depth, pathList, "", -1, false);
 	}
 
 	private static boolean simpleSearch(
@@ -65,18 +61,26 @@ public class Solver {
 											   boolean lockOppositeCategory
 	){
 		scrambled.executeCommands(move);
-		if (solved(step, scrambled)) {
-			path.push(move);
-			return true;
+		while (solved(step, scrambled)) {
+			step += 1;
+			if (step == 2) {
+				path.push(move);
+				return true;
+			}
 		}
 		if (depth == 0) {
 			return false;
 		}
 
 		for (int i = 0; i < moves_to_try[step].length; i++) {
-			if (i == lastMoveCategory) continue;
-			if (lockOppositeCategory)
-				if (i + lastMoveCategory == moves_to_try[step].length -1) continue;
+			if (i == lastMoveCategory) {
+				continue;
+			}
+			if (lockOppositeCategory) {
+				if (i + lastMoveCategory == moves_to_try[step].length - 1) {
+					continue;
+				}
+			}
 			for (String m : moves_to_try[step][i]) {
 				boolean lock = (i + lastMoveCategory == moves_to_try[step].length -1);
 				Cube clone = scrambled.clone();

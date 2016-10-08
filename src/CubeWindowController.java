@@ -1,6 +1,4 @@
 
-import java.util.Optional;
-
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,15 +7,9 @@ import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -25,6 +17,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Font;
+
+import java.util.Optional;
 
 public class CubeWindowController {
 	@FXML public CheckBox ckb_clockwise;
@@ -209,8 +203,7 @@ public class CubeWindowController {
 	}
 
 	private String solve(){
-		
-		return Solver.solveCubeSimpleSearch(c.clone(), 4);
+		return Solver.solveCubeSimpleSearch(c, 3);
 	}
 
 	private void setPaintingMode(boolean value){
