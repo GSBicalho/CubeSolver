@@ -224,15 +224,21 @@ public class CubeWindowController {
 			
 			@Override
 			protected String call() throws Exception {
-				Thread.sleep(2000l); //simulates loading, for now
-				return "teste1";
+				return solve();
 			}};
 		
-		Thread loadingThread = new Thread(t, "list-loader");
+		Thread loadingThread = new Thread(t, "cube-solver");
         loadingThread.setDaemon(true);
         loadingThread.start();
         
 		loadingAlert.showAndWait();
+	}
+	
+	private String solve(){
+		try {
+			Thread.sleep(2000l); //simulates loading, for now
+		} catch (InterruptedException e) {}
+		return "comandos de solucao";
 	}
 	
 	private void setPaintingMode(boolean value){
