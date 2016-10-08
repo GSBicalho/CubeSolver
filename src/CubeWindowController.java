@@ -10,6 +10,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -63,7 +69,13 @@ public class CubeWindowController {
 	Cursor paintBucketCursor, eyedropperCursor;
 
 	Alert loadingAlert = null;
-	ButtonType loadingAlertCancelButton;
+	ButtonType loadingAlertCancelButton = null;
+
+	Alert algorithmSelectionAlert = null;
+	ButtonType algorithmSelectionAlertNoHeuristicsButton = null;
+	ButtonType algorithmSelectionAlertWithHeuristicsButton = null;
+	ButtonType algorithmSelectionAlertCancelButton = null;
+	TextField algorithmSelectionAlertAnswer = null;
 
 	public void initialize() {
 		c = new Cube();
@@ -79,6 +91,7 @@ public class CubeWindowController {
 		eyedropperCursor = new ImageCursor(eyedropperBucketImage, eyedropperBucketImage.getWidth()/2, eyedropperBucketImage.getHeight()/2);
 
 		createLoadingAlert();
+		createAlgorithmSelectorAlert();
 
 		c.draw(gc);
 	}
@@ -110,7 +123,33 @@ public class CubeWindowController {
 	}
 	
 	protected void createAlgorithmSelectorAlert(){
-		
+		algorithmSelectionAlert = new Alert(Alert.AlertType.CONFIRMATION);
+		algorithmSelectionAlert.setTitle("Solving Method Selection");
+		algorithmSelectionAlert.setHeaderText("Please select the depth and the desired Solving Method!");
+		algorithmSelectionAlert.setContentText(null);
+
+		algorithmSelectionAlertAnswer = new TextField("4");
+		algorithmSelectionAlertAnswer.setFont(Font.font(14));
+		Label l = new Label("Depth: ");
+		l.setFont(Font.font(14));
+		HBox hb = new HBox();
+		hb.getChildren().addAll(l, algorithmSelectionAlertAnswer);
+		algorithmSelectionAlert.getDialogPane().setContent(hb);
+
+		algorithmSelectionAlertNoHeuristicsButton = new ButtonType("No Heuristics");
+		algorithmSelectionAlertWithHeuristicsButton = new ButtonType("With Heuristics");
+		algorithmSelectionAlertCancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+		algorithmSelectionAlert
+			.getDialogPane()
+			.getButtonTypes()
+			.clear();
+		algorithmSelectionAlert
+			.getDialogPane()
+			.getButtonTypes()
+			.addAll(algorithmSelectionAlertNoHeuristicsButton,
+					algorithmSelectionAlertWithHeuristicsButton,
+					algorithmSelectionAlertCancelButton);
 	}
 	
 	@FXML protected void btnUpButton(ActionEvent event) {
@@ -171,8 +210,28 @@ public class CubeWindowController {
 	}
 
 	@FXML protected void btnSolveButton(ActionEvent event){
+		Optional<ButtonType> result = algorithmSelectionAlert.showAndWait();
 
+		if(result.get() != algorithmSelectionAlertCancelButton){
+			String depthString = algorithmSelectionAlertAnswer.getText();
+			int depth = asInt(depthString);
+			if (result.get() == algorithmSelectionAlertNoHeuristicsButton){
+				showLoadingDialog(false, depth);
+			}else if(result.get() == algorithmSelectionAlertWithHeuristicsButton){
+				showLoadingDialog(true, depth);
+			}
+		}
+	}
 
+	public int asInt(String s){
+		try{
+			return Integer.parseInt(s);
+		}catch(Exception e){
+			return 0;
+		}
+	}
+
+	private void showLoadingDialog(boolean withHeuristics, int depth){
 		Task<String> t = new Task<String>(){
 			{
                 setOnSucceeded(workerStateEvent -> {
@@ -188,22 +247,26 @@ public class CubeWindowController {
 
 			@Override
 			protected String call() throws Exception {
-				return solve();
+				return solve(withHeuristics, depth);
 			}};
 
 		Thread loadingThread = new Thread(t, "cube-solver");
         loadingThread.setDaemon(true);
         loadingThread.start();
 
-        Optional<ButtonType> result = loadingAlert.showAndWait();
+        loadingAlert.showAndWait();
         
         if(loadingThread.isAlive()){
         	loadingThread.interrupt();
         }
 	}
 
-	private String solve(){
-		return Solver.solveCubeSimpleSearch(c, 3);
+	private String solve(boolean withHeuristics, int depth){
+		if(withHeuristics){
+			return Solver.solveCubeSimpleSearch(c.clone(), depth); //change to heuristics call
+		}else{
+			return Solver.solveCubeSimpleSearch(c.clone(), depth);
+		}
 	}
 
 	private void setPaintingMode(boolean value){
@@ -238,9 +301,11 @@ public class CubeWindowController {
 		}
 	}
 
+
 	@FXML protected void btnPaintButton(ActionEvent event) {
 		setPaintingMode(!isPainting);
 	}
+
 
 	public Color[][] createCenterOnlyColorMatrix(Color center){
 		Color[][] m = new Color[3][3];
