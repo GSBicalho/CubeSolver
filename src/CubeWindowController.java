@@ -1,11 +1,14 @@
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Polygon;
 
 public class CubeWindowController {
 	@FXML public CheckBox ckb_clockwise;
@@ -179,17 +182,19 @@ public class CubeWindowController {
 		return m;
 	}
 	
+	int hOffset = 10;
+	int vOffset = 10;
+	int hPadding = 4;
+	int vPadding = 4;
+	
+	int hDiag = 21;
+	int vDiag = 21;
+	
+	int sizeOfSquare = 35;
+	
+	Color currentColor = Cube.FRONT_COLOR;
+	
 	protected void drawPaint(){
-		int hOffset = 10;
-		int vOffset = 10;
-		int hPadding = 4;
-		int vPadding = 4;
-		
-		int hDiag = 21;
-		int vDiag = 21;
-		
-		int sizeOfSquare = 35;
-		
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 		
@@ -287,6 +292,14 @@ public class CubeWindowController {
 			}
 		}
 		
+		
+		//draw current color square
+		gc.setFill(currentColor);
+		gc.fillRect(hPadding + hOffset + sizeOfSquare * 7 + 5, vPadding + vOffset + sizeOfSquare*(4 + 3), 60, 60);
+		gc.strokeRect(hPadding + hOffset + sizeOfSquare * 7 + 5, vPadding + vOffset + sizeOfSquare*(4 + 3), 60, 60);
+		
+		gc.setFill(Color.BLACK);
+		gc.fillText("Current Color", hPadding + hOffset + sizeOfSquare * 7, vOffset + sizeOfSquare*(4 + 3));
 	}
 
 	@FXML protected void actionEvent_Command(ActionEvent event) {
@@ -294,5 +307,136 @@ public class CubeWindowController {
 		tf_command.setText("");
 		System.out.println(c);
 		c.draw(gc);
+	}
+	
+	@FXML protected void canvasOnMouseMoved(MouseEvent event) {
+		//System.out.println(event.getX() + " " + event.getY());
+	}
+	
+	@FXML protected void canvasOnMouseClicked(MouseEvent event) {
+		int side = -1;
+		int foundI, foundJ;
+		
+		//front side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				int startX = hPadding + hOffset + sizeOfSquare * (3 + i);
+				int startY = vOffset + sizeOfSquare*(4 + j);
+				
+				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
+				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+					side = 0;
+					foundI = j;
+					foundJ = i;
+				}
+			}
+		}
+		
+		//left side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				int startX = hOffset + sizeOfSquare * i;
+				int startY = vOffset + sizeOfSquare*(4 + j);
+				
+				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
+				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+					side = 1;
+					foundI = j;
+					foundJ = i;
+				}
+			}
+		}
+		
+		//down side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				int startX = hPadding + hOffset + sizeOfSquare * (3 + i);
+				int startY = vPadding + vOffset + sizeOfSquare*(4 + 3 + j);
+				
+				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
+				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+					side = 2;
+					foundI = j;
+					foundJ = i;
+				}
+			}
+		}
+		
+		//up side
+		for(int i = 0; i < 3; i++){
+			int initialPointX = hPadding + hOffset + sizeOfSquare * 3 + hDiag * 3 + 1;
+			int initialPointY = - vPadding + vOffset + sizeOfSquare*4 - 3 * vDiag;
+			
+			for(int j = 0; j < 3; j++){
+				double[] xs = {
+						initialPointX + sizeOfSquare * j - hDiag * i,
+						initialPointX + sizeOfSquare * (j + 1)  - hDiag * i,
+						initialPointX + sizeOfSquare * (j + 1) - hDiag * (i + 1),
+						initialPointX + sizeOfSquare * j - hDiag * (i + 1),
+				}; 
+				double[] ys = {
+						initialPointY + vDiag * i,
+						initialPointY + vDiag * i,
+						initialPointY + vDiag * (i + 1),
+						initialPointY + vDiag * (i + 1)
+				};
+				Double[] xAndY = {xs[0], ys[0], xs[1], ys[1], xs[2], ys[2], xs[3], ys[3]};
+				Polygon p = new Polygon();
+				p.getPoints().addAll(xAndY);
+				
+				if(p.contains(new Point2D(event.getX(), event.getY()))){
+					side = 3;
+					foundI = j;
+					foundJ = i;
+				}
+			}
+		}
+		
+		//right side
+		for(int i = 0; i < 3; i++){
+			int initialPointX = hPadding*2 + hOffset + sizeOfSquare * 6;
+			int initialPointY = vOffset + sizeOfSquare*4;
+			
+			for(int j = 0; j < 3; j++){
+				double[] ys = {
+						initialPointY + sizeOfSquare * j - vDiag * i,
+						initialPointY + sizeOfSquare * (j + 1) - vDiag * i,
+						initialPointY + sizeOfSquare * (j + 1) - vDiag * (i + 1),
+						initialPointY + sizeOfSquare * j - vDiag * (i + 1),
+				}; 
+				double[] xs = {
+						initialPointX + hDiag * i,
+						initialPointX + hDiag * i,
+						initialPointX + hDiag * (i + 1),
+						initialPointX + hDiag * (i + 1)
+				};
+				Double[] xAndY = {xs[0], ys[0], xs[1], ys[1], xs[2], ys[2], xs[3], ys[3]};
+				Polygon p = new Polygon();
+				p.getPoints().addAll(xAndY);
+				
+				if(p.contains(new Point2D(event.getX(), event.getY()))){
+					side = 4;
+					foundI = j;
+					foundJ = i;
+				}
+			}
+		}
+		
+		//back side
+		for(int i = 0; i < 3; i++){
+			for(int j = 0; j < 3; j++){
+				int startX = hPadding*3 + hOffset + sizeOfSquare * (6 + i) + hDiag * 3;
+				int startY = vPadding + vOffset + sizeOfSquare*(2 + j) + 2;
+				
+				if(startX < event.getX() && event.getX() < startX + sizeOfSquare &&
+				   startY < event.getY() && event.getY() < startY + sizeOfSquare){
+					side = 5;
+					foundI = j;
+					foundJ = i;
+				}
+			}
+		}
+		
+		
 	}
 }
