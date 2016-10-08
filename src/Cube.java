@@ -739,4 +739,23 @@ public class Cube {
 			}
 		}
 	}
+	
+	public enum CubeletName{
+		URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB
+	}
+	
+	public enum CubeletRotation{
+		R1(0), R2(1), R3(2);
+		public int v;
+		CubeletRotation(int v){
+			this.v = v;
+		}
+	}
+	
+	public class Cubelet{
+		public CubeletName name;
+		public CubeletRotation rotation;
+	}
+	
+	public void turnToCubelets(){}
 }
