@@ -4,7 +4,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
-import javafx.scene.paint.Color;
 
 public class CubeWindowController {
 	@FXML public CheckBox ckb_clockwise;
@@ -15,45 +14,7 @@ public class CubeWindowController {
 	GraphicsContext gc;
 	
 	public void initialize() {
-		Color[][][] aux = {
-				{
-					{Cube.FRONT_COLOR, Cube.LEFT_COLOR, Cube.FRONT_COLOR},
-					{Cube.DOWN_COLOR, Cube.LEFT_COLOR, Cube.FRONT_COLOR},
-					{Cube.FRONT_COLOR, Cube.LEFT_COLOR, Cube.RIGHT_COLOR}
-				},
-				{
-					{Cube.LEFT_COLOR, Cube.BACK_COLOR, Cube.BACK_COLOR},
-					{Cube.RIGHT_COLOR, Cube.FRONT_COLOR, Cube.FRONT_COLOR},
-					{Cube.BACK_COLOR, Cube.RIGHT_COLOR, Cube.UP_COLOR}
-				},
-				{
-					{Cube.DOWN_COLOR, Cube.DOWN_COLOR, Cube.FRONT_COLOR},
-					{Cube.BACK_COLOR, Cube.DOWN_COLOR, Cube.UP_COLOR},
-					{Cube.RIGHT_COLOR, Cube.LEFT_COLOR, Cube.BACK_COLOR}
-				},
-				{
-					{Cube.UP_COLOR, Cube.BACK_COLOR, Cube.BACK_COLOR},
-					{Cube.FRONT_COLOR, Cube.UP_COLOR, Cube.FRONT_COLOR},
-					{Cube.DOWN_COLOR, Cube.RIGHT_COLOR, Cube.RIGHT_COLOR}
-				},
-				{
-					{Cube.UP_COLOR, Cube.UP_COLOR, Cube.DOWN_COLOR},
-					{Cube.DOWN_COLOR, Cube.RIGHT_COLOR, Cube.UP_COLOR},
-					{Cube.RIGHT_COLOR, Cube.LEFT_COLOR, Cube.UP_COLOR}
-				},
-				{
-					{Cube.LEFT_COLOR, Cube.UP_COLOR, Cube.LEFT_COLOR},
-					{Cube.RIGHT_COLOR, Cube.BACK_COLOR, Cube.BACK_COLOR},
-					{Cube.LEFT_COLOR, Cube.DOWN_COLOR, Cube.DOWN_COLOR}
-				}
-			};
-		
-		try {
-			c = new Cube(aux);
-		} catch (Cube.InvalidCubeException e) {
-			e.printStackTrace();
-		}
-		//c = new Cube();
+		c = new Cube();
 		ckb_clockwise.setSelected(true);
 		System.out.println(c);
 		

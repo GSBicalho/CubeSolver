@@ -1,10 +1,9 @@
 import javafx.application.Application;
-import javafx.event.EventHandler;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 
 public class MainWindow extends Application{
@@ -12,8 +11,8 @@ public class MainWindow extends Application{
 	public void start(Stage stage) throws Exception {
 		//Carrega a janela
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("Windows/CubeWindow.fxml"));
-		Parent root = (Parent)loader.load();
-		CubeWindowController mwc = (CubeWindowController)loader.getController();
+		Parent root = loader.load();
+		CubeWindowController mwc = loader.getController();
 
 		Scene scene = new Scene(root);
 		
@@ -22,12 +21,7 @@ public class MainWindow extends Application{
 		stage.setTitle("Cube Solver");
 		stage.setScene(scene);
 		stage.setResizable(false);
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent we) {
-				
-			}
-		});
+		stage.setOnCloseRequest(we -> Platform.exit());
 		
 		//Exibe a janela
 		stage.show();

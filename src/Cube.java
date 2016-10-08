@@ -1,9 +1,9 @@
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 public class Cube {
 	public static final Color FRONT_COLOR = Color.RED;
@@ -12,7 +12,11 @@ public class Cube {
 	public static final Color RIGHT_COLOR = Color.GREEN;
 	public static final Color UP_COLOR = Color.YELLOW;
 	public static final Color DOWN_COLOR = Color.WHITE;
-	
+
+	public boolean solved() {
+		return this.equals(new Cube());
+	}
+
 	enum Square{
 		F1, F2, F3,
 		F4, F5, F6,
@@ -364,7 +368,7 @@ public class Cube {
 				throw new Exception();
 			}
 			
-			ArrayList<Square> testArray = new ArrayList<Square>();
+			ArrayList<Square> testArray = new ArrayList<>();
 			Side[] sides = {front, back, left, right, up, down};
 			for(Side s : sides){
 				for(Square[] aS : s.m){
@@ -415,9 +419,7 @@ public class Cube {
 	private static Color[][] copyColorMatrix(Color[][] m){
 		Color[][] result = new Color[3][3];
 		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				result[i][j] = m[i][j];
-			}
+			System.arraycopy(m[i], 0, result[i], 0, 3);
 		}
 		return result;
 	}
