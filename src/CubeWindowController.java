@@ -234,6 +234,8 @@ public class CubeWindowController {
 		c.draw(gc);
 	}
 	
+	@FXML protected void canvasOnMouseExited(MouseEvent event) {}
+	
 	@FXML protected void canvasOnMouseMoved(MouseEvent event) {
 		//System.out.println(event.getX() + " " + event.getY());
 		if(isPainting){
