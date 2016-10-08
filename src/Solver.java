@@ -35,6 +35,10 @@ public class Solver {
 		return cubes;
 	}
 
+	public static String solveCubeHeuristicSearch(Cube scrambled, int depth){
+		return "";
+	}
+
 	public static String solveCubeSimpleSearch(Cube scrambled, int depth){
 		StringBuilder path = new StringBuilder("");
 
