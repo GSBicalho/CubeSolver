@@ -15,32 +15,32 @@
          <children>
             <AnchorPane prefHeight="400.0" prefWidth="300.0" style="-fx-border-color: black;">
                <children>
-                  <Button layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#btnUpButton" prefHeight="30.0" prefWidth="170.0" text="Up">
+                  <Button fx:id="btn_up" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#btnUpButton" prefHeight="30.0" prefWidth="170.0" text="Up">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Button>
-                  <Button layoutX="14.0" layoutY="59.0" mnemonicParsing="false" onAction="#btnDownButton" prefWidth="170.0" text="Down">
+                  <Button fx:id="btn_down" layoutX="14.0" layoutY="59.0" mnemonicParsing="false" onAction="#btnDownButton" prefWidth="170.0" text="Down">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Button>
-                  <Button layoutX="14.0" layoutY="104.0" mnemonicParsing="false" onAction="#btnLeftButton" prefWidth="170.0" text="Left">
+                  <Button fx:id="btn_left" layoutX="14.0" layoutY="104.0" mnemonicParsing="false" onAction="#btnLeftButton" prefWidth="170.0" text="Left">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Button>
-                  <Button layoutX="14.0" layoutY="149.0" mnemonicParsing="false" onAction="#btnRightButton" prefWidth="170.0" text="Right">
+                  <Button fx:id="btn_right" layoutX="14.0" layoutY="149.0" mnemonicParsing="false" onAction="#btnRightButton" prefWidth="170.0" text="Right">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Button>
-                  <Button layoutX="14.0" layoutY="194.0" mnemonicParsing="false" onAction="#btnFrontButton" prefWidth="170.0" text="Front">
+                  <Button fx:id="btn_front" layoutX="14.0" layoutY="194.0" mnemonicParsing="false" onAction="#btnFrontButton" prefWidth="170.0" text="Front">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Button>
-                  <Button layoutX="14.0" layoutY="239.0" mnemonicParsing="false" onAction="#btnBackButton" prefWidth="170.0" text="Back">
+                  <Button fx:id="btn_back" layoutX="14.0" layoutY="239.0" mnemonicParsing="false" onAction="#btnBackButton" prefWidth="170.0" text="Back">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -50,7 +50,7 @@
                         <Font size="14.0" />
                      </font>
                   </CheckBox>
-                  <Button layoutX="14.0" layoutY="356.0" mnemonicParsing="false" onAction="#btnResetButton" prefHeight="30.0" prefWidth="170.0" text="Reset">
+                  <Button fx:id="btn_reset" layoutX="14.0" layoutY="356.0" mnemonicParsing="false" onAction="#btnResetButton" prefHeight="30.0" prefWidth="79.0" text="Reset">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -60,9 +60,14 @@
                         <Font size="14.0" />
                      </font>
                   </TextField>
+                  <Button fx:id="btn_paint" layoutX="105.0" layoutY="356.0" mnemonicParsing="false" onAction="#btnPaintButton" prefHeight="30.0" prefWidth="79.0" text="Paint">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Button>
                </children>
             </AnchorPane>
-            <Canvas fx:id="cv_canvas" height="400.0" width="442.0" />
+            <Canvas fx:id="cv_canvas" height="400.0" onMouseClicked="#canvasOnMouseClicked" onMouseMoved="#canvasOnMouseMoved" width="442.0" />
          </children>
       </HBox>
    </children>

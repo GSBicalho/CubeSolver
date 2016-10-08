@@ -13,6 +13,9 @@ public class Cube {
 	public static final Color UP_COLOR = Color.YELLOW;
 	public static final Color DOWN_COLOR = Color.WHITE;
 
+	public static final Color ERROR_COLOR = Color.DARKGRAY;
+
+
 	public boolean solved() {
 		return this.equals(new Cube());
 	}
