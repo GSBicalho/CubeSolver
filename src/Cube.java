@@ -742,7 +742,7 @@ public class Cube {
 	}
 	
 	public enum CornerCubeletName{
-		URF(0), UFL(1), ULB(2), UBR(3), DFR(4), DLF(5), DBL(6), DRB(7);
+		FRU(0), FLU(1), BLU(2), BRU(3), FRD(4), FLD(5), BLD(6), BRD(7);
 		
 		public int v;
 		CornerCubeletName(int v){
@@ -792,11 +792,11 @@ public class Cube {
 			m[i + 4] = new CornerCubelet(squareToCornerCubelet(s), null);
 			
 			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
-				m[i].rotation = CornerCubeletRotation.R1;
+				m[i + 4].rotation = CornerCubeletRotation.R1;
 			}else if(matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s)){
-				m[i].rotation = CornerCubeletRotation.R2;
+				m[i + 4].rotation = CornerCubeletRotation.R2;
 			}else{
-				m[i].rotation = CornerCubeletRotation.R3;
+				m[i + 4].rotation = CornerCubeletRotation.R3;
 			}
 		}
 		
@@ -804,16 +804,135 @@ public class Cube {
 	}
 	
 	public CornerCubeletName squareToCornerCubelet(Square s){
-		if(s == Square.U1 || s == Square.F1 || s == Square.L3) return CornerCubeletName.UFL;
-		if(s == Square.U3 || s == Square.R1 || s == Square.F3) return CornerCubeletName.URF;
-		if(s == Square.U7 || s == Square.B1 || s == Square.R3) return CornerCubeletName.UBR;
-		if(s == Square.U9 || s == Square.L1 || s == Square.B3) return CornerCubeletName.ULB;
+		if(s == Square.U1 || s == Square.F1 || s == Square.L3) return CornerCubeletName.FLU;
+		if(s == Square.U3 || s == Square.R1 || s == Square.F3) return CornerCubeletName.FRU;
+		if(s == Square.U7 || s == Square.B1 || s == Square.R3) return CornerCubeletName.BRU;
+		if(s == Square.U9 || s == Square.L1 || s == Square.B3) return CornerCubeletName.BLU;
 		
-		if(s == Square.D1 || s == Square.B9 || s == Square.L7) return CornerCubeletName.DBL;
-		if(s == Square.D3 || s == Square.F9 || s == Square.R7) return CornerCubeletName.DFR;
-		if(s == Square.D7 || s == Square.L9 || s == Square.F7) return CornerCubeletName.DLF;
-		if(s == Square.D9 || s == Square.R9 || s == Square.B7) return CornerCubeletName.DRB;
+		if(s == Square.D1 || s == Square.B9 || s == Square.L7) return CornerCubeletName.BLD;
+		if(s == Square.D3 || s == Square.F9 || s == Square.R7) return CornerCubeletName.FRD;
+		if(s == Square.D7 || s == Square.L9 || s == Square.F7) return CornerCubeletName.FLD;
+		if(s == Square.D9 || s == Square.R9 || s == Square.B7) return CornerCubeletName.BRD;
 		
 		return null;
 	}
+
+	public enum EdgeCubeletName{
+		FU(0), FL(1), FR(2), FD(3),
+		MUL(4), MUR(5), MDL(6), MDR(7),
+		BU(8), BL(9), BR(10), BD(11);
+		
+		int v;
+		EdgeCubeletName(int v){
+			this.v = v;
+		}
+	}
+	
+	public enum EdgeCubeletRotation{
+		R1(0), R2(1);
+		int v;
+		EdgeCubeletRotation(int v){
+			this.v = v;
+		}
+	}
+	
+	public class EdgeCubelet{
+		public EdgeCubeletName name;
+		public EdgeCubeletRotation rotation;
+		
+		public EdgeCubelet(EdgeCubeletName name, EdgeCubeletRotation rotation){
+			this.name = name;
+			this.rotation = rotation;
+		}
+	}
+	
+	public EdgeCubeletName squareToEdgeCubelet(Square s){
+		if(s == Square.F2 || s == Square.U8) return EdgeCubeletName.FU;
+		if(s == Square.F4 || s == Square.L6) return EdgeCubeletName.FL;
+		if(s == Square.F6 || s == Square.R4) return EdgeCubeletName.FR;
+		if(s == Square.F8 || s == Square.D2) return EdgeCubeletName.FD;
+		
+		if(s == Square.U4 || s == Square.L2) return EdgeCubeletName.MUL;
+		if(s == Square.U6 || s == Square.R2) return EdgeCubeletName.MUR;
+		if(s == Square.D4 || s == Square.L8) return EdgeCubeletName.MDL;
+		if(s == Square.D6 || s == Square.R8) return EdgeCubeletName.MDR;
+		
+		if(s == Square.B2 || s == Square.U2) return EdgeCubeletName.BU;
+		if(s == Square.B4 || s == Square.R6) return EdgeCubeletName.BL;
+		if(s == Square.B6 || s == Square.L4) return EdgeCubeletName.BR;
+		if(s == Square.B8 || s == Square.D8) return EdgeCubeletName.BD;
+		
+		return null;
+	}
+	
+	public EdgeCubelet[] getEdgeCubelets(){
+		EdgeCubelet[] m = new EdgeCubelet[12];
+		
+		ArrayList<EdgeCubeletName> frontCubelets = new ArrayList<EdgeCubeletName>();
+		Collections.addAll(frontCubelets, new EdgeCubeletName[]{EdgeCubeletName.FD, EdgeCubeletName.FL, EdgeCubeletName.FR, EdgeCubeletName.FU});
+		
+		ArrayList<EdgeCubeletName> middleCubelets = new ArrayList<EdgeCubeletName>();
+		Collections.addAll(middleCubelets, new EdgeCubeletName[]{EdgeCubeletName.MDL, EdgeCubeletName.MDR, EdgeCubeletName.MUL, EdgeCubeletName.MUR});
+		
+		ArrayList<EdgeCubeletName> backCubelets = new ArrayList<EdgeCubeletName>();
+		Collections.addAll(backCubelets, new EdgeCubeletName[]{EdgeCubeletName.BD, EdgeCubeletName.BL, EdgeCubeletName.BR, EdgeCubeletName.BU});
+		
+		int[][] edgesFrontAndBack = {{0,1},{1,0},{1,2},{2,1}};
+		int[][] edgesSides = {{0, 1}, {2, 1}};
+		
+		for(int i = 0; i < 4; i++){
+			Square s = front.m[edgesFrontAndBack[i][0]][edgesFrontAndBack[i][1]];
+			m[i] = new EdgeCubelet(squareToEdgeCubelet(s), null);
+
+			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
+				m[i].rotation = EdgeCubeletRotation.R1;
+			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+				m[i].rotation = EdgeCubeletRotation.R1;
+			}else{
+				m[i].rotation = EdgeCubeletRotation.R2;
+			}
+		}
+		
+		for(int i = 0; i < 4; i++){
+			Square s = back.m[edgesFrontAndBack[i][0]][edgesFrontAndBack[i][1]];
+			m[i + 4] = new EdgeCubelet(squareToEdgeCubelet(s), null);
+
+			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
+				m[i + 4].rotation = EdgeCubeletRotation.R1;
+			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+				m[i + 4].rotation = EdgeCubeletRotation.R1;
+			}else{
+				m[i + 4].rotation = EdgeCubeletRotation.R2;
+			}
+		}
+		
+		for(int i = 0; i < 2; i++){
+			Square s = left.m[edgesSides[i][0]][edgesSides[i][1]];
+			m[i + 8] = new EdgeCubelet(squareToEdgeCubelet(s), null);
+
+			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
+				m[i + 8].rotation = EdgeCubeletRotation.R1;
+			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+				m[i + 8].rotation = EdgeCubeletRotation.R1;
+			}else{
+				m[i + 8].rotation = EdgeCubeletRotation.R2;
+			}
+		}
+		
+		for(int i = 0; i < 2; i++){
+			Square s = right.m[edgesSides[i][0]][edgesSides[i][1]];
+			m[i + 10] = new EdgeCubelet(squareToEdgeCubelet(s), null);
+
+			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
+				m[i + 10].rotation = EdgeCubeletRotation.R1;
+			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+				m[i + 10].rotation = EdgeCubeletRotation.R1;
+			}else{
+				m[i + 10].rotation = EdgeCubeletRotation.R2;
+			}
+		}
+		
+		return m;
+	}
+	
 }
