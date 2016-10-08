@@ -34,12 +34,6 @@ public class MainWindow extends Application{
 	}
 
 	public static void main(String[] args) {
-//		Application.launch(MainWindow.class, args);
-
-		Cube cube = new Cube();
-//		cube.executeCommands("F2 R2 F2 L2 D2 B2 D' F2 R2 U' F2 L D R2 U F' U L D' F R2");
-		cube.executeCommands("B");
-		System.out.println("Solver: " + Solver.solveCubeSimpleSearch(cube, 5));
-
+		Application.launch(MainWindow.class, args);
 	}
 }
