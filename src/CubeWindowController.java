@@ -105,8 +105,7 @@ public class CubeWindowController {
 		}else{
 			try{
 				Color[][][] sides = {paintFront, paintBack, paintLeft, paintRight, paintUp, paintDown};
-				Cube newCube = new Cube(sides);
-				c = newCube;
+				c = new Cube(sides);
 				setPaintingMode(false);
 			}catch(Cube.InvalidCubeException e){
 				Alert alert = new Alert(AlertType.ERROR);

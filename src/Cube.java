@@ -601,7 +601,6 @@ public class Cube {
 		    matcher.start();
 		}
 		
-		System.out.println();
 	}
 	
 	public void executeCommand(String c){

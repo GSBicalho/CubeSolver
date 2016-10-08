@@ -67,7 +67,7 @@
                   </Button>
                </children>
             </AnchorPane>
-            <Canvas fx:id="cv_canvas" height="400.0" width="442.0" />
+            <Canvas fx:id="cv_canvas" height="400.0" onMouseClicked="#canvasOnMouseClicked" onMouseMoved="#canvasOnMouseMoved" width="442.0" />
          </children>
       </HBox>
    </children>
