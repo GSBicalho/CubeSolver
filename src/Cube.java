@@ -633,8 +633,6 @@ public class Cube {
 	}
 	
 	public void draw(GraphicsContext gc){
-		shapeFromCubelets(getCornerCubelets(), getEdgeCubelets());
-		
 		int hOffset = 10;
 		int vOffset = 10;
 		int hPadding = 4;
@@ -744,7 +742,7 @@ public class Cube {
 	}
 	
 	public enum CornerCubeletName{
-		FRU(0), FLU(1), BLU(2), BRU(3), FRD(4), FLD(5), BLD(6), BRD(7);
+		FLU(0), FRU(1), FLD(2), FRD(3), BRU(4), BLU(5), BRD(6), BLD(7);
 		
 		public int v;
 		CornerCubeletName(int v){
@@ -821,8 +819,8 @@ public class Cube {
 
 	public enum EdgeCubeletName{
 		FU(0), FL(1), FR(2), FD(3),
-		MLU(4), MRU(5), MLD(6), MRD(7),
-		BU(8), BL(9), BR(10), BD(11);
+		BU(4), BR(5), BL(6), BD(7),
+		MLU(8), MLD(9), MRU(10), MRD(11);
 		
 		int v;
 		EdgeCubeletName(int v){
