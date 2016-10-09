@@ -935,4 +935,166 @@ public class Cube {
 		return m;
 	}
 	
+	public Square[] edgeCubeletNameToSquares(EdgeCubeletName ecn){
+		switch(ecn){
+		case BD:
+			return new Square[]{Square.B8, Square.D8};
+		case BL:
+			return new Square[]{Square.B4, Square.R6};
+		case BR:
+			return new Square[]{Square.B6, Square.L4};
+		case BU:
+			return new Square[]{Square.B2, Square.U2};
+		case FD:
+			return new Square[]{Square.F8, Square.D2};
+		case FL:
+			return new Square[]{Square.F4, Square.L6};
+		case FR:
+			return new Square[]{Square.F6, Square.R4};
+		case FU:
+			return new Square[]{Square.F2, Square.U8};
+		case MDL:
+			return new Square[]{Square.D4, Square.L8};
+		case MDR:
+			return new Square[]{Square.D6, Square.R8};
+		case MUL:
+			return new Square[]{Square.U4, Square.L2};
+		case MUR:
+			return new Square[]{Square.U6, Square.R2};
+		default:
+			break;
+		
+		}
+		return null;
+	}
+	
+	public Square[] cornerCubeletNameToSquares(CornerCubeletName ccn){
+		switch(ccn){
+		case BLD:
+			return new Square[]{Square.B9, Square.L7, Square.D1};
+		case BLU:
+			return new Square[]{Square.B3, Square.L1, Square.U9};
+		case BRD:
+			return new Square[]{Square.B7, Square.R9, Square.D9};
+		case BRU:
+			return new Square[]{Square.B1, Square.R3, Square.U7};
+		case FLD:
+			return new Square[]{Square.F7, Square.L9, Square.D7};
+		case FLU:
+			return new Square[]{Square.F1, Square.L3, Square.U1};
+		case FRD:
+			return new Square[]{Square.F9, Square.R7, Square.D3};
+		case FRU:
+			return new Square[]{Square.F3, Square.R1, Square.U3};
+		default:
+			break;
+		}
+		
+		return null;
+	}
+	
+	private void shapeCornersFromCubelets(CornerCubelet[] cc){
+		int[][] corners = {{0, 0}, {0, 2},{2, 0},{2, 2}};
+		int[] correctOrder = {0,2, 3, 1};
+		
+		for(int i = 0; i < corners.length; i++){
+			Square[] m = cornerCubeletNameToSquares(cc[correctOrder[i]].name);
+			front.m[0][0] = m[cc[correctOrder[i]].rotation.v];
+			
+			m = getUpAndLeftSquare(front.m[0][0]);
+			up.m[2][0] = m[0];
+			left.m[0][2] = m[1];
+			turnFront(true);
+		}
+		
+		for(int i = 0; i < corners.length; i++){
+			Square[] m = cornerCubeletNameToSquares(cc[correctOrder[i] + corners.length].name);
+			back.m[0][0] = m[cc[correctOrder[i] + corners.length].rotation.v];
+			
+			m = getUpAndLeftSquare(back.m[0][0]);
+			up.m[0][2] = m[0];
+			right.m[0][2] = m[1];
+			turnBack(true);
+		}
+	}
+	
+	private Square[] getUpAndLeftSquare(Square s){
+		Cube c = new Cube();
+		if(matrixContains(INIT_FRONT, s)){
+			while(c.front.m[0][0] != s){
+				c.turnFront(true);
+			}
+		}else if(matrixContains(INIT_RIGHT, s)){
+			while(c.right.m[0][0] != s){
+				c.turnRight(true);
+			}
+			c.turnUp(true);
+		}else if(matrixContains(INIT_LEFT, s)){
+			while(c.left.m[0][0] != s){
+				c.turnLeft(true);
+			}
+			c.turnUp(false);
+		}else if(matrixContains(INIT_UP, s)){
+			while(c.up.m[0][0] != s){
+				c.turnUp(true);
+			}
+			c.turnLeft(true);
+		}else if(matrixContains(INIT_DOWN, s)){
+			while(c.down.m[0][0] != s){
+				c.turnDown(true);
+			}
+			c.turnLeft(false);
+		}else if(matrixContains(INIT_BACK, s)){
+			while(c.back.m[0][0] != s){
+				c.turnBack(true);
+			}
+			c.turnUp(true);
+			c.turnUp(true);
+		}
+		
+		return new Square[]{c.up.m[2][0], c.left.m[0][2]};
+	}
+	
+	private void shapeEdgesFromCubelets(EdgeCubelet[] ec){
+		int[] correctOrder = {0, 1, 3, 2};
+		
+		for(int i = 0; i < 4; i++){
+			Square[] m = edgeCubeletNameToSquares(ec[correctOrder[i]].name);
+			front.m[0][1] = m[ec[correctOrder[i]].rotation.v];
+			up.m[2][1] = m[(ec[correctOrder[i]].rotation.v + 1) % 2];
+			
+			turnFront(true);
+		}
+		
+		for(int i = 0; i < 4; i++){
+			Square[] m = edgeCubeletNameToSquares(ec[correctOrder[i] + 4].name);
+			back.m[0][1] = m[ec[correctOrder[i] + 4].rotation.v];
+			up.m[0][1] = m[(ec[correctOrder[i] + 4].rotation.v + 1) % 2];
+			
+			turnBack(true);
+		}
+		
+		for(int i = 0; i < 2; i++){
+			Square[] m = edgeCubeletNameToSquares(ec[i + 8].name);
+			left.m[0][1] = m[ec[i + 8].rotation.v];
+			up.m[1][0] = m[(ec[i + 8].rotation.v + 1) % 2];
+			
+			turnLeft(true);
+			turnLeft(true);
+		}
+		
+		for(int i = 0; i < 2; i++){
+			Square[] m = edgeCubeletNameToSquares(ec[i + 10].name);
+			right.m[0][1] = m[ec[i + 10].rotation.v];
+			up.m[1][2] = m[(ec[i + 10].rotation.v + 1) % 2];
+			
+			turnRight(true);
+			turnRight(true);
+		}
+	}
+	
+	public void shapeFromCubelets(CornerCubelet[] corners,EdgeCubelet[] edges){
+		shapeCornersFromCubelets(corners);
+		shapeEdgesFromCubelets(edges);
+	}
 }
