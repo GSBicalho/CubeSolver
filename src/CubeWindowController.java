@@ -10,12 +10,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -263,9 +257,9 @@ public class CubeWindowController {
 
 	private String solve(boolean withHeuristics, int depth){
 		if(withHeuristics){
-			return Solver.solveCubeHeuristicSearch(c.clone(), depth);
+			return Solver.solveCubeHeuristicSearch(c, depth);
 		}else{
-			return Solver.solveCubeSimpleSearch(c.clone(), depth);
+			return Solver.solveCubeSimpleSearch(c, depth);
 		}
 	}
 

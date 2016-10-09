@@ -36,7 +36,139 @@ public class Solver {
 	}
 
 	public static String solveCubeHeuristicSearch(Cube scrambled, int depth){
-		return "";
+		StringBuilder path = new StringBuilder("");
+
+		Stack<String> pathList = new Stack<>();
+		if (!heuristicSearch(scrambled, depth, pathList)) return "Failed";
+		System.out.println("path: " + pathList.toString());
+		while (!pathList.empty()) path.append(pathList.pop()).append(" ");
+
+		return path.toString();
+	}
+
+	public static boolean heuristicSearch(Cube scrambled, int depth, Stack<String> pathList) {
+		int threshold = 0;// scrambled.getEstimatedCost();
+		while(true) {
+			int tmp = heuristicSearch(
+					0, scrambled.clone(), depth, pathList, -1, "", 0, threshold
+			);
+			if (tmp == -1) {
+				return true;
+			}
+			if (tmp == Integer.MAX_VALUE){
+				return false;
+			}
+
+			threshold = tmp;
+		}
+	}
+
+	public static int heuristicSearch(
+												int step,
+												Cube scrambled,
+												int depth,
+												Stack<String> path,
+												int lastMoveCategory,
+												String move,
+												int gCost,
+												int threshold
+	){
+		scrambled.executeCommands(move);
+		int f = gCost + 0; // scrambled.getEstimatedCost();
+		if (f > threshold)
+			return f;
+		if (solved(step, scrambled)) {
+			step = step + 1;
+			if (step == 2){
+				path.push(move);
+				return -1;
+			}
+		}
+		int min = Integer.MAX_VALUE;
+		if (depth == 0)
+			return min;
+		for (int i = 0, len = moves_to_try[step].length; i < len; i++) {
+			if (i == lastMoveCategory) {
+				continue;
+			}
+			if (i + lastMoveCategory == len - 1 && lastMoveCategory >= len / 2){
+				continue;
+			}
+
+			for (String m : moves_to_try[step][i]) {
+				int tmp = heuristicSearch(
+						step, scrambled.clone(), depth - 1,
+						path, i, m, gCost + 1, threshold
+				);
+				if (tmp == -1){
+					path.push(m);
+					return -1;
+				}
+				if (tmp < min) min = tmp;
+			}
+			return min;
+		}
+		return -1;
+	}
+
+	public static int getEstimatedCost(Cube node) {
+		if (node.equals(new Cube())) return 0;
+		int[] cornersCost = new int[8];
+		int[] edgesCost = new int[12];
+		Cube.CornerCubelet[] corners = node.getCornerCubelets();
+
+		for (Cube.CornerCubeletName i : Cube.CornerCubeletName.values()){
+
+		}
+
+		return 0;
+	}
+
+	public static int manhattanBFS(Cube[] nodes) {
+		boolean finishedCorner = false;
+		boolean finished1Edges = false;
+		boolean finished2Edges = false;
+
+		for (Cube cube : nodes){
+			// from least to most significant bit:
+			// 0x1 will be 1 if finished corners
+			// 0x2 will be 1 if finished first set of edges
+			// 0x4 will be 1 if finished second set of edges
+			int status = isFinalNode(cube);
+			finishedCorner = finishedCorner || ((status & 0x1) == 0x1);
+			finished1Edges = finished1Edges || ((status & 0x2) == 0x2);
+			finished2Edges = finished2Edges || ((status & 0x4) == 0x4);
+		}
+		if (finished1Edges && finished2Edges && finishedCorner) return 1;
+		else return 1 + manhattanBFS(expandNodes(nodes, -1));
+	}
+
+	private static Cube[] expandNodes(Cube[] nodes, int lastMoveCategory){
+		String[][] moves = moves_to_try[0];
+
+		ArrayList<Cube> ret = new ArrayList<>(nodes.length*15);
+		for (int i = 0, len = moves.length; i < len; i++) {
+			if (i == lastMoveCategory) {
+				continue;
+			}
+			if (i + lastMoveCategory == len - 1 && lastMoveCategory >= len / 2) {
+				continue;
+			}
+
+			for (Cube c : nodes) {
+				for (String m : moves[i]) {
+					ret.add(c.clone().executeCommands(m));
+				}
+			}
+		}
+
+		return ret.toArray(new Cube[ret.size()]);
+	}
+
+	private static int isFinalNode(Cube node){
+		int ret = 0;
+		ret = ret | 0x1;
+		return -1;
 	}
 
 	public static String solveCubeSimpleSearch(Cube scrambled, int depth){
@@ -75,11 +207,11 @@ public class Solver {
 			return false;
 		}
 
-		for (int i = 0; i < moves_to_try[step].length; i++) {
+		for (int i = 0, len = moves_to_try[step].length; i < len; i++) {
 			if (i == lastMoveCategory) {
 				continue;
 			}
-			if (i + lastMoveCategory == moves_to_try[step].length - 1 && lastMoveCategory >= moves_to_try[step].length / 2) {
+			if (i + lastMoveCategory == len-1 && lastMoveCategory >= len/2) {
 				continue;
 			}
 			for (String m : moves_to_try[step][i]) {

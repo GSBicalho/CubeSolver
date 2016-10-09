@@ -205,7 +205,7 @@ public class Cube {
 		*/
 	}
 	
-	public void turnFront(boolean clockwise){
+	public Cube turnFront(boolean clockwise){
 		rotateSide(front, !clockwise);
 		
 		rotateSide(right, false);
@@ -219,9 +219,11 @@ public class Cube {
 		rotateSide(left, false);
 		rotateSide(up, true);
 		rotateSide(up, true);
+
+		return this;
 	}
 	
-	public void turnBack(boolean clockwise){
+	public Cube turnBack(boolean clockwise){
 		rotateSide(back, !clockwise);
 		
 		rotateSide(right, true);
@@ -233,15 +235,19 @@ public class Cube {
 		rotateSide(left, true);
 		rotateSide(down, true);
 		rotateSide(down, true);
+
+		return this;
 	}
 	
-	public void turnUp(boolean clockwise){
+	public Cube turnUp(boolean clockwise){
 		rotateSide(up, !clockwise);
 		
 		rotateInCircle(back, front, left, right, clockwise);
+
+		return this;
 	}
 	
-	public void turnDown(boolean clockwise){
+	public Cube turnDown(boolean clockwise){
 		rotateSide(down, !clockwise);
 		
 		rotateSide(front, true);
@@ -261,9 +267,11 @@ public class Cube {
 		rotateSide(left, true);
 		rotateSide(right, true);
 		rotateSide(right, true);
+
+		return this;
 	}
 	
-	public void turnLeft(boolean clockwise){
+	public Cube turnLeft(boolean clockwise){
 		rotateSide(left, !clockwise);
 		
 		rotateSide(up, false);
@@ -275,9 +283,11 @@ public class Cube {
 		rotateSide(down, true);
 		rotateSide(front, true);
 		rotateSide(back, false);
+
+		return this;
 	}
 	
-	public void turnRight(boolean clockwise){
+	public Cube turnRight(boolean clockwise){
 		rotateSide(right, !clockwise);
 		
 		rotateSide(up, true);
@@ -289,6 +299,8 @@ public class Cube {
 		rotateSide(down, false);
 		rotateSide(front, false);
 		rotateSide(back, true);
+
+		return this;
 	}
 	
 	public Cube (){
@@ -590,8 +602,32 @@ public class Cube {
 		}
 		return result + "}";
 	}
-	
-	public void executeCommands(String c){
+
+	public String reverseCommands(String c){
+
+		Pattern pattern = Pattern.compile("([lrfbduLRFDBU][2']?)");
+		Matcher matcher = pattern.matcher(c);
+
+		StringBuilder reverse = new StringBuilder("");
+
+		while(matcher.find())
+		{
+			String current = matcher.group(1);
+			if (current.contains("'")){
+				reverse.insert(0, current.replaceAll("'", ""));
+			} else if (current.contains("2")) {
+				reverse.insert(0, current);
+			} else {
+				reverse.insert(0, current + "'");
+			}
+			matcher.start();
+		}
+
+		return reverse.toString();
+
+	}
+
+	public Cube executeCommands(String c){
 		Pattern pattern = Pattern.compile("([lrfbduLRFDBU][2']?)");
 		Matcher matcher = pattern.matcher(c);
 		
@@ -601,10 +637,12 @@ public class Cube {
 		    executeCommand(matcher.group(1));
 		    matcher.start();
 		}
-		
+
+
+		return this;
 	}
 	
-	public void executeCommand(String c){
+	public Cube executeCommand(String c){
 		switch(c.toUpperCase()){
 		case "U":  turnUp(true); break;
 		case "U'": turnUp(false); break;
@@ -630,6 +668,8 @@ public class Cube {
 		case "B'": turnBack(false); break;
 		case "B2": turnBack(true); turnBack(true); break;
 		}
+
+		return this;
 	}
 	
 	public void draw(GraphicsContext gc){
@@ -868,14 +908,20 @@ public class Cube {
 	public EdgeCubelet[] getEdgeCubelets(){
 		EdgeCubelet[] m = new EdgeCubelet[12];
 		
-		ArrayList<EdgeCubeletName> frontCubelets = new ArrayList<EdgeCubeletName>();
-		Collections.addAll(frontCubelets, new EdgeCubeletName[]{EdgeCubeletName.FD, EdgeCubeletName.FL, EdgeCubeletName.FR, EdgeCubeletName.FU});
+		ArrayList<EdgeCubeletName> frontCubelets = new ArrayList<>();
+		Collections.addAll(frontCubelets,
+				EdgeCubeletName.FD, EdgeCubeletName.FL,
+				EdgeCubeletName.FR, EdgeCubeletName.FU
+		);
 		
 		ArrayList<EdgeCubeletName> middleCubelets = new ArrayList<EdgeCubeletName>();
 		Collections.addAll(middleCubelets, new EdgeCubeletName[]{EdgeCubeletName.MLD, EdgeCubeletName.MRD, EdgeCubeletName.MLU, EdgeCubeletName.MRU});
 		
-		ArrayList<EdgeCubeletName> backCubelets = new ArrayList<EdgeCubeletName>();
-		Collections.addAll(backCubelets, new EdgeCubeletName[]{EdgeCubeletName.BD, EdgeCubeletName.BL, EdgeCubeletName.BR, EdgeCubeletName.BU});
+		ArrayList<EdgeCubeletName> backCubelets = new ArrayList<>();
+		Collections.addAll(backCubelets,
+				EdgeCubeletName.BD, EdgeCubeletName.BL,
+				EdgeCubeletName.BR, EdgeCubeletName.BU
+		);
 		
 		int[][] edgesFrontAndBack = {{0,1},{1,0},{1,2},{2,1}};
 		int[][] edgesSides = {{0, 1}, {2, 1}};
@@ -909,7 +955,7 @@ public class Cube {
 		for(int i = 0; i < 2; i++){
 			Square s = left.m[edgesSides[i][0]][edgesSides[i][1]];
 			m[i + 8] = new EdgeCubelet(squareToEdgeCubelet(s), null);
-			
+
 			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
 				m[i + 8].rotation = EdgeCubeletRotation.R1;
 			}else if(middleCubelets.contains(m[i + 8].name) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
@@ -934,7 +980,7 @@ public class Cube {
 		
 		return m;
 	}
-	
+
 	public Square[] edgeCubeletNameToSquares(EdgeCubeletName ecn){
 		switch(ecn){
 		case BD:
@@ -963,11 +1009,11 @@ public class Cube {
 			return new Square[]{Square.R2, Square.U6};
 		default:
 			break;
-		
+
 		}
 		return null;
 	}
-	
+
 	public Square[] cornerCubeletNameToSquares(CornerCubeletName ccn){
 		switch(ccn){
 		case BLD:
@@ -989,35 +1035,35 @@ public class Cube {
 		default:
 			break;
 		}
-		
+
 		return null;
 	}
-	
+
 	private void shapeCornersFromCubelets(CornerCubelet[] cc){
 		int[][] corners = {{0, 0}, {0, 2},{2, 0},{2, 2}};
 		int[] correctOrder = {0,2, 3, 1};
-		
+
 		for(int i = 0; i < corners.length; i++){
 			Square[] m = cornerCubeletNameToSquares(cc[correctOrder[i]].name);
 			front.m[0][0] = m[cc[correctOrder[i]].rotation.v];
-			
+
 			m = getUpAndLeftSquare(front.m[0][0]);
 			up.m[2][0] = m[0];
 			left.m[0][2] = m[1];
 			turnFront(true);
 		}
-		
+
 		for(int i = 0; i < corners.length; i++){
 			Square[] m = cornerCubeletNameToSquares(cc[correctOrder[i] + corners.length].name);
 			back.m[0][0] = m[cc[correctOrder[i] + corners.length].rotation.v];
-			
+
 			m = getUpAndLeftSquare(back.m[0][0]);
 			up.m[0][2] = m[0];
 			right.m[0][2] = m[1];
 			turnBack(true);
 		}
 	}
-	
+
 	private Square[] getUpAndLeftSquare(Square s){
 		Cube c = new Cube();
 		if(matrixContains(INIT_FRONT, s)){
@@ -1051,53 +1097,53 @@ public class Cube {
 			c.turnUp(true);
 			c.turnUp(true);
 		}
-		
+
 		return new Square[]{c.up.m[2][0], c.left.m[0][2]};
 	}
-	
+
 	private void shapeEdgesFromCubelets(EdgeCubelet[] ec){
 		int[] correctOrder = {0, 1, 3, 2};
-		
+
 		ArrayList<EdgeCubeletName> middleCubelets = new ArrayList<EdgeCubeletName>();
 		Collections.addAll(middleCubelets, new EdgeCubeletName[]{EdgeCubeletName.MLD, EdgeCubeletName.MRD, EdgeCubeletName.MLU, EdgeCubeletName.MRU});
-		
-		
+
+
 		for(int i = 0; i < 4; i++){
 			Square[] m = edgeCubeletNameToSquares(ec[correctOrder[i]].name);
-			
+
 			front.m[0][1] = m[ec[correctOrder[i]].rotation.v];
 			up.m[2][1] = m[(ec[correctOrder[i]].rotation.v + 1) % 2];
-			
+
 			turnFront(true);
 		}
-		
+
 		for(int i = 0; i < 4; i++){
 			Square[] m = edgeCubeletNameToSquares(ec[correctOrder[i] + 4].name);
 			back.m[0][1] = m[ec[correctOrder[i] + 4].rotation.v];
 			up.m[0][1] = m[(ec[correctOrder[i] + 4].rotation.v + 1) % 2];
-			
+
 			turnBack(true);
 		}
-		
+
 		for(int i = 0; i < 2; i++){
 			Square[] m = edgeCubeletNameToSquares(ec[i + 8].name);
 			left.m[0][1] = m[ec[i + 8].rotation.v];
 			up.m[1][0] = m[(ec[i + 8].rotation.v + 1) % 2];
-			
+
 			turnLeft(true);
 			turnLeft(true);
 		}
-		
+
 		for(int i = 0; i < 2; i++){
 			Square[] m = edgeCubeletNameToSquares(ec[i + 10].name);
 			right.m[0][1] = m[ec[i + 10].rotation.v];
 			up.m[1][2] = m[(ec[i + 10].rotation.v + 1) % 2];
-			
+
 			turnRight(true);
 			turnRight(true);
 		}
 	}
-	
+
 	public void shapeFromCubelets(CornerCubelet[] corners,EdgeCubelet[] edges){
 		shapeCornersFromCubelets(corners);
 		shapeEdgesFromCubelets(edges);
