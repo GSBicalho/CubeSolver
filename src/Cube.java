@@ -633,6 +633,8 @@ public class Cube {
 	}
 	
 	public void draw(GraphicsContext gc){
+		shapeFromCubelets(getCornerCubelets(), getEdgeCubelets());
+		
 		int hOffset = 10;
 		int vOffset = 10;
 		int hPadding = 4;
@@ -819,7 +821,7 @@ public class Cube {
 
 	public enum EdgeCubeletName{
 		FU(0), FL(1), FR(2), FD(3),
-		MUL(4), MUR(5), MDL(6), MDR(7),
+		MLU(4), MRU(5), MLD(6), MRD(7),
 		BU(8), BL(9), BR(10), BD(11);
 		
 		int v;
@@ -852,14 +854,14 @@ public class Cube {
 		if(s == Square.F6 || s == Square.R4) return EdgeCubeletName.FR;
 		if(s == Square.F8 || s == Square.D2) return EdgeCubeletName.FD;
 		
-		if(s == Square.U4 || s == Square.L2) return EdgeCubeletName.MUL;
-		if(s == Square.U6 || s == Square.R2) return EdgeCubeletName.MUR;
-		if(s == Square.D4 || s == Square.L8) return EdgeCubeletName.MDL;
-		if(s == Square.D6 || s == Square.R8) return EdgeCubeletName.MDR;
+		if(s == Square.U4 || s == Square.L2) return EdgeCubeletName.MLU;
+		if(s == Square.U6 || s == Square.R2) return EdgeCubeletName.MRU;
+		if(s == Square.D4 || s == Square.L8) return EdgeCubeletName.MLD;
+		if(s == Square.D6 || s == Square.R8) return EdgeCubeletName.MRD;
 		
 		if(s == Square.B2 || s == Square.U2) return EdgeCubeletName.BU;
-		if(s == Square.B4 || s == Square.R6) return EdgeCubeletName.BL;
-		if(s == Square.B6 || s == Square.L4) return EdgeCubeletName.BR;
+		if(s == Square.B4 || s == Square.R6) return EdgeCubeletName.BR;
+		if(s == Square.B6 || s == Square.L4) return EdgeCubeletName.BL;
 		if(s == Square.B8 || s == Square.D8) return EdgeCubeletName.BD;
 		
 		return null;
@@ -872,7 +874,7 @@ public class Cube {
 		Collections.addAll(frontCubelets, new EdgeCubeletName[]{EdgeCubeletName.FD, EdgeCubeletName.FL, EdgeCubeletName.FR, EdgeCubeletName.FU});
 		
 		ArrayList<EdgeCubeletName> middleCubelets = new ArrayList<EdgeCubeletName>();
-		Collections.addAll(middleCubelets, new EdgeCubeletName[]{EdgeCubeletName.MDL, EdgeCubeletName.MDR, EdgeCubeletName.MUL, EdgeCubeletName.MUR});
+		Collections.addAll(middleCubelets, new EdgeCubeletName[]{EdgeCubeletName.MLD, EdgeCubeletName.MRD, EdgeCubeletName.MLU, EdgeCubeletName.MRU});
 		
 		ArrayList<EdgeCubeletName> backCubelets = new ArrayList<EdgeCubeletName>();
 		Collections.addAll(backCubelets, new EdgeCubeletName[]{EdgeCubeletName.BD, EdgeCubeletName.BL, EdgeCubeletName.BR, EdgeCubeletName.BU});
@@ -886,7 +888,7 @@ public class Cube {
 
 			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
 				m[i].rotation = EdgeCubeletRotation.R1;
-			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+			}else if(middleCubelets.contains(m[i].name) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
 				m[i].rotation = EdgeCubeletRotation.R1;
 			}else{
 				m[i].rotation = EdgeCubeletRotation.R2;
@@ -899,7 +901,7 @@ public class Cube {
 
 			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
 				m[i + 4].rotation = EdgeCubeletRotation.R1;
-			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+			}else if(middleCubelets.contains(m[i + 4].name) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
 				m[i + 4].rotation = EdgeCubeletRotation.R1;
 			}else{
 				m[i + 4].rotation = EdgeCubeletRotation.R2;
@@ -909,10 +911,10 @@ public class Cube {
 		for(int i = 0; i < 2; i++){
 			Square s = left.m[edgesSides[i][0]][edgesSides[i][1]];
 			m[i + 8] = new EdgeCubelet(squareToEdgeCubelet(s), null);
-
+			
 			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
 				m[i + 8].rotation = EdgeCubeletRotation.R1;
-			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+			}else if(middleCubelets.contains(m[i + 8].name) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
 				m[i + 8].rotation = EdgeCubeletRotation.R1;
 			}else{
 				m[i + 8].rotation = EdgeCubeletRotation.R2;
@@ -925,7 +927,7 @@ public class Cube {
 
 			if(matrixContains(INIT_FRONT, s) || matrixContains(INIT_BACK, s)){
 				m[i + 10].rotation = EdgeCubeletRotation.R1;
-			}else if(middleCubelets.contains(m[i]) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
+			}else if(middleCubelets.contains(m[i + 10].name) && (matrixContains(INIT_LEFT, s) || matrixContains(INIT_RIGHT, s))){
 				m[i + 10].rotation = EdgeCubeletRotation.R1;
 			}else{
 				m[i + 10].rotation = EdgeCubeletRotation.R2;
@@ -940,9 +942,9 @@ public class Cube {
 		case BD:
 			return new Square[]{Square.B8, Square.D8};
 		case BL:
-			return new Square[]{Square.B4, Square.R6};
-		case BR:
 			return new Square[]{Square.B6, Square.L4};
+		case BR:
+			return new Square[]{Square.B4, Square.R6};
 		case BU:
 			return new Square[]{Square.B2, Square.U2};
 		case FD:
@@ -953,14 +955,14 @@ public class Cube {
 			return new Square[]{Square.F6, Square.R4};
 		case FU:
 			return new Square[]{Square.F2, Square.U8};
-		case MDL:
-			return new Square[]{Square.D4, Square.L8};
-		case MDR:
-			return new Square[]{Square.D6, Square.R8};
-		case MUL:
-			return new Square[]{Square.U4, Square.L2};
-		case MUR:
-			return new Square[]{Square.U6, Square.R2};
+		case MLD:
+			return new Square[]{Square.L8, Square.D4};
+		case MRD:
+			return new Square[]{Square.R8, Square.D6};
+		case MLU:
+			return new Square[]{Square.L2, Square.U4};
+		case MRU:
+			return new Square[]{Square.R2, Square.U6};
 		default:
 			break;
 		
@@ -1058,8 +1060,13 @@ public class Cube {
 	private void shapeEdgesFromCubelets(EdgeCubelet[] ec){
 		int[] correctOrder = {0, 1, 3, 2};
 		
+		ArrayList<EdgeCubeletName> middleCubelets = new ArrayList<EdgeCubeletName>();
+		Collections.addAll(middleCubelets, new EdgeCubeletName[]{EdgeCubeletName.MLD, EdgeCubeletName.MRD, EdgeCubeletName.MLU, EdgeCubeletName.MRU});
+		
+		
 		for(int i = 0; i < 4; i++){
 			Square[] m = edgeCubeletNameToSquares(ec[correctOrder[i]].name);
+			
 			front.m[0][1] = m[ec[correctOrder[i]].rotation.v];
 			up.m[2][1] = m[(ec[correctOrder[i]].rotation.v + 1) % 2];
 			
