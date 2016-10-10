@@ -780,6 +780,28 @@ public class Cube {
 			}
 		}
 	}
+
+	public static CornerCubeletName intToCornerCubeletName(byte i){
+		switch (i){
+			case 0:
+				return CornerCubeletName.FLU;
+			case 1:
+				return CornerCubeletName.FRU;
+			case 2:
+				return CornerCubeletName.FLD;
+			case 3:
+				return CornerCubeletName.FRD;
+			case 4:
+				return CornerCubeletName.BRU;
+			case 5:
+				return CornerCubeletName.BLU;
+			case 6:
+				return CornerCubeletName.BRD;
+			case 7:
+			default:
+				return CornerCubeletName.BLD;
+		}
+	}
 	
 	public static enum CornerCubeletName{
 		FLU((byte)0), FRU((byte)1), FLD((byte)2), FRD((byte)3), BRU((byte)4), BLU((byte)5), BRD((byte)6), BLD((byte)7);
@@ -855,6 +877,36 @@ public class Cube {
 		if(s == Square.D9 || s == Square.R9 || s == Square.B7) return CornerCubeletName.BRD;
 		
 		return null;
+	}
+
+	public static EdgeCubeletName intToEdgeCubeletName(byte i){
+		switch (i){
+			case 0:
+				return EdgeCubeletName.FU;
+			case 1:
+				return EdgeCubeletName.FL;
+			case 2:
+				return EdgeCubeletName.FR;
+			case 3:
+				return EdgeCubeletName.FD;
+			case 4:
+				return EdgeCubeletName.BU;
+			case 5:
+				return EdgeCubeletName.BR;
+			case 6:
+				return EdgeCubeletName.BL;
+			case 7:
+				return EdgeCubeletName.BD;
+			case 8:
+				return EdgeCubeletName.MLU;
+			case 9:
+				return EdgeCubeletName.MLD;
+			case 10:
+				return EdgeCubeletName.MRU;
+			case 11:
+			default:
+				return EdgeCubeletName.MRD;
+		}
 	}
 
 	public static enum EdgeCubeletName{
@@ -1153,36 +1205,64 @@ public class Cube {
 	
 	public int getRot0Corners(CornerCubeletName from, CornerCubeletName to){
 		if(from == to) return 0;
-		
+
 		switch(from){
-		case FLU:
-			switch(to){
-			case FRU: case FLD: case FRD: case BRU: case BLD:
-				return 1;
-			case BLU: case BRD: 
-				return 2;
-			}
-		case FLD:
-			switch(to){
-			case FRD: case FLU: case FRU: case BRD: case BLU:
-				return 1;
-			case BLD: case BRU: 
-				return 2;
-			}
-		case FRD:
-			switch(to){
-			case FLD: case FRU: case FLU: case BLD: case BRU:
-				return 1;
-			case BRD: case BLU: 
-				return 2;
-			}
-		case FRU:
-			switch(to){
-			case FLU: case FRD: case FLD: case BLU: case BRD:
-				return 1;
-			case BRU: case BLD: 
-				return 2;
-			}
+			case BLU:
+				switch(to){
+					case BRU: case BLD: case BRD: case FRU: case FLD:
+						return 1;
+					case FLU: case FRD:
+						return 2;
+				}
+			case BLD:
+				switch(to){
+					case BRD: case BLU: case BRU: case FRD: case FLU:
+						return 1;
+					case FLD: case FRU:
+						return 2;
+				}
+			case BRD:
+				switch(to){
+					case BLD: case BRU: case BLU: case FLD: case FRU:
+						return 1;
+					case FRD: case FLU:
+						return 2;
+				}
+			case BRU:
+				switch(to){
+					case BLU: case BRD: case BLD: case FLU: case FRD:
+						return 1;
+					case FRU: case FLD:
+						return 2;
+				}
+			case FLU:
+				switch(to){
+					case FRU: case FLD: case FRD: case BRU: case BLD:
+						return 1;
+					case BLU: case BRD:
+						return 2;
+				}
+			case FLD:
+				switch(to){
+					case FRD: case FLU: case FRU: case BRD: case BLU:
+						return 1;
+					case BLD: case BRU:
+						return 2;
+				}
+			case FRD:
+				switch(to){
+					case FLD: case FRU: case FLU: case BLD: case BRU:
+						return 1;
+					case BRD: case BLU:
+						return 2;
+				}
+			case FRU:
+				switch(to){
+					case FLU: case FRD: case FLD: case BLU: case BRD:
+						return 1;
+					case BRU: case BLD:
+						return 2;
+				}
 		}
 		
 		return 0;
@@ -1192,34 +1272,62 @@ public class Cube {
 		if(from == to) return 2;
 		
 		switch(from){
-		case FLU:
-			switch(to){
-			case FRU: case BLU:
-				return 1;
-			case FLD: case FRD: case BRU: case BLD: case BRD:
-				return 2;
-			}
-		case FLD:
-			switch(to){
-			case FRD: case BLD:
-				return 1;
-			case FLU: case FRU: case BRD: case BLU: case BRU:
-				return 2;
-			}
-		case FRD:
-			switch(to){
-			case FLD: case BRD:
-				return 1;
-			case FRU: case FLU: case BLD: case BRU: case BLU:
-				return 2;
-			}
-		case FRU:
-			switch(to){
-			case FLU: case BRU:
-				return 1;
-			case FRD: case FLD: case BLU: case BRD: case BLD:
-				return 2;
-			}
+			case BLU:
+				switch(to){
+					case BRU: case FLU:
+						return 1;
+					case BLD: case BRD: case FRU: case FLD: case FRD:
+						return 2;
+				}
+			case BLD:
+				switch(to){
+					case BRD: case FLD:
+						return 1;
+					case BLU: case BRU: case FRD: case FLU: case FRU:
+						return 2;
+				}
+			case BRD:
+				switch(to){
+					case BLD: case FRD:
+						return 1;
+					case BRU: case BLU: case FLD: case FRU: case FLU:
+						return 2;
+				}
+			case BRU:
+				switch(to){
+					case BLU: case FRU:
+						return 1;
+					case BRD: case BLD: case FLU: case FRD: case FLD:
+						return 2;
+				}
+			case FLU:
+				switch(to){
+					case FRU: case BLU:
+						return 1;
+					case FLD: case FRD: case BRU: case BLD: case BRD:
+						return 2;
+				}
+			case FLD:
+				switch(to){
+					case FRD: case BLD:
+						return 1;
+					case FLU: case FRU: case BRD: case BLU: case BRU:
+						return 2;
+				}
+			case FRD:
+				switch(to){
+					case FLD: case BRD:
+						return 1;
+					case FRU: case FLU: case BLD: case BRU: case BLU:
+						return 2;
+				}
+			case FRU:
+				switch(to){
+					case FLU: case BRU:
+						return 1;
+					case FRD: case FLD: case BLU: case BRD: case BLD:
+						return 2;
+				}
 		}
 		
 		return 0;
@@ -1229,34 +1337,62 @@ public class Cube {
 		if(from == to) return 2;
 		
 		switch(from){
-		case FLU:
-			switch(to){
-			case BLU: case FLD:
-				return 1;
-			case FRU: case FRD: case BRU: case BLD: case BRD:
-				return 2;
-			}
-		case FLD:
-			switch(to){
-			case BLD: case FLU:
-				return 1;
-			case FRD: case FRU: case BRD: case BLU: case BRU:
-				return 2;
-			}
-		case FRD:
-			switch(to){
-			case BRD: case FRU:
-				return 1;
-			case FLD: case FLU: case BLD: case BLU: case BRU:
-				return 2;
-			}
-		case FRU:
-			switch(to){
-			case BRU: case FRD:
-				return 1;
-			case FLD: case FLU: case BLD: case BLU: case BRD:
-				return 2;
-			}
+			case BLU:
+				switch(to){
+					case FLU: case BLD:
+						return 1;
+					case BRU: case BRD: case FRU: case FLD: case FRD:
+						return 2;
+				}
+			case BLD:
+				switch(to){
+					case FLD: case BLU:
+						return 1;
+					case BRD: case BRU: case FRD: case FLU: case FRU:
+						return 2;
+				}
+			case BRD:
+				switch(to){
+					case FRD: case BRU:
+						return 1;
+					case BLD: case BLU: case FLD: case FLU: case FRU:
+						return 2;
+				}
+			case BRU:
+				switch(to){
+					case FRU: case BRD:
+						return 1;
+					case BLD: case BLU: case FLD: case FLU: case FRD:
+						return 2;
+				}
+			case FLU:
+				switch(to){
+					case BLU: case FLD:
+						return 1;
+					case FRU: case FRD: case BRU: case BLD: case BRD:
+						return 2;
+				}
+			case FLD:
+				switch(to){
+					case BLD: case FLU:
+						return 1;
+					case FRD: case FRU: case BRD: case BLU: case BRU:
+						return 2;
+				}
+			case FRD:
+				switch(to){
+					case BRD: case FRU:
+						return 1;
+					case FLD: case FLU: case BLD: case BLU: case BRU:
+						return 2;
+				}
+			case FRU:
+				switch(to){
+					case BRU: case FRD:
+						return 1;
+					case FLD: case FLU: case BLD: case BLU: case BRD:
+						return 2;
+				}
 		}
 		
 		return 0;
@@ -1267,79 +1403,91 @@ public class Cube {
 		if(from == to) return 0;
 		
 		switch(from){
-		case FU:
-			switch(to){
-			case FL: case FR: case FD: case BU: case MLU: case MRU:
-				return 1;
-			case BR: case BL: case BD: case MLD: case MRD:
-				return 2;
-			}
-		case FD:
-			switch(to){
-			case FL: case FR: case FU: case BD: case MLD: case MRD:
-				return 1;
-			case BR: case BL: case BU: case MLU: case MRU:
-				return 2;
-			}
-		case FL:
-			switch(to){
-			case FU: case FR: case FD: case BL:
-				return 1;
-			case BR: case BD: case BU: case MLU: case MRU: case MLD: case MRD:
-				return 2;
-			}
-		case FR:
-			switch(to){
-			case FU: case FL: case FD: case BR:
-				return 1;
-			case BL: case BD: case BU: case MRU: case MLU: case MRD: case MLD:
-				return 2;
-			}
-		case BD:
-			switch(to){
-			case BL: case BR: case BU: case FD: case MLD: case MRD:
-				return 1;
-			case FR: case FL: case FU: case MLU: case MRU:
-				return 2;
-			}
-		case BL:
-			switch(to){
-			case BU: case BR: case BD: case FL:
-				return 1;
-			case FR: case FD: case FU: case MLU: case MRU: case MLD: case MRD:
-				return 2;
-			}
-		case BR:
-		case BU:
-		
-		case MLU:
-			switch(to){
-			case FU: case BU: case MRU: case MLD:
-				return 1;
-			case FL: case FR: case FD: case BL: case BD: case BR: case MRD:
-				return 2;
-			}
-		case MRU:
-			switch(to){
-			case FU: case BU: case MLU: case MRD:
-				return 1;
-			case FR: case FL: case FD: case BR: case BD: case BL: case MLD:
-				return 2;
-			}
-		case MRD:
-			switch(to){
-			case FD: case BD: case MLD: case MRU:
-				return 1;
-			case FR: case FL: case FU: case BR: case BU: case BL: case MLU:
-				return 2;
-			}
-		case MLD:
-			switch(to){
-			case FD: case BD: case MRD: case MLU:
-				return 1;
-			case FL: case FR: case FU: case BL: case BU: case BR: case MRU:
-				return 2;
-			}
+			case FU:
+				switch(to){
+					case FL: case FR: case FD: case BU: case MLU: case MRU:
+						return 1;
+					case BR: case BL: case BD: case MLD: case MRD:
+						return 2;
+				}
+			case FD:
+				switch(to){
+					case FL: case FR: case FU: case BD: case MLD: case MRD:
+						return 1;
+					case BR: case BL: case BU: case MLU: case MRU:
+						return 2;
+				}
+			case FL:
+				switch(to){
+					case FU: case FR: case FD: case BL:
+						return 1;
+					case BR: case BD: case BU: case MLU: case MRU: case MLD: case MRD:
+						return 2;
+				}
+			case FR:
+				switch(to){
+					case FU: case FL: case FD: case BR:
+						return 1;
+					case BL: case BD: case BU: case MRU: case MLU: case MRD: case MLD:
+						return 2;
+				}
+			case BD:
+				switch(to){
+					case BL: case BR: case BU: case FD: case MLD: case MRD:
+						return 1;
+					case FR: case FL: case FU: case MLU: case MRU:
+						return 2;
+				}
+			case BL:
+				switch(to){
+					case BU: case BR: case BD: case FL:
+						return 1;
+					case FR: case FD: case FU: case MLU: case MRU: case MLD: case MRD:
+						return 2;
+				}
+			case BR:
+				switch(to){
+					case BU: case BL: case BD: case FR:
+						return 1;
+					case FL: case FD: case FU: case MRU: case MLU: case MRD: case MLD:
+						return 2;
+				}
+			case BU:
+				switch(to){
+					case BL: case BR: case BD: case FU: case MLU: case MRU:
+						return 1;
+					case FR: case FL: case FD: case MLD: case MRD:
+						return 2;
+				}
+
+			case MLU:
+				switch(to){
+					case FU: case BU: case MRU: case MLD:
+						return 1;
+					case FL: case FR: case FD: case BL: case BD: case BR: case MRD:
+						return 2;
+				}
+			case MRU:
+				switch(to){
+					case FU: case BU: case MLU: case MRD:
+						return 1;
+					case FR: case FL: case FD: case BR: case BD: case BL: case MLD:
+						return 2;
+				}
+			case MRD:
+				switch(to){
+					case FD: case BD: case MLD: case MRU:
+						return 1;
+					case FR: case FL: case FU: case BR: case BU: case BL: case MLU:
+						return 2;
+				}
+			case MLD:
+				switch(to){
+					case FD: case BD: case MRD: case MLU:
+						return 1;
+					case FL: case FR: case FU: case BL: case BU: case BR: case MRU:
+						return 2;
+				}
 		}
 		
 		return 0;
@@ -1392,9 +1540,21 @@ public class Cube {
 				return 3;
 			}
 		case BR:
-			
+			switch(to){
+				case BU: case FD: case FU: case BD: case MRU: case MLU: case MLD: case MRD:
+					return 2;
+				case BL: case FL: case FR:
+					return 3;
+			}
+
 		case BU:
-		
+			switch(to){
+				case BL: case BR: case FL: case FR: case MLU: case MRU: case MLD: case MRD:
+					return 2;
+				case FD: case BD: case FU:
+					return 3;
+			}
+
 		case MLU:
 			switch(to){
 			case BL: case FL: 
@@ -1405,11 +1565,32 @@ public class Cube {
 				return 3;
 			}
 		case MRU:
-			
-		case MRD:
-			
+			switch(to){
+				case BR: case FR:
+					return 1;
+				case FD: case BU: case FU: case BD: case FL: case BL:
+					return 2;
+				case MLD: case MRD: case MLU:
+					return 3;
+			}
 		case MLD:
-			
+			switch(to){
+				case BL: case FL:
+					return 1;
+				case FU: case BD: case FD: case BU: case FR: case BR:
+					return 2;
+				case MRU: case MLU: case MRD:
+					return 3;
+			}
+		case MRD:
+			switch(to){
+				case BR: case FR:
+					return 1;
+				case FU: case BD: case FD: case BU: case FL: case BL:
+					return 2;
+				case MLU: case MRU: case MLD:
+					return 3;
+			}
 		}
 		
 		return 0;

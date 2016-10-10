@@ -48,7 +48,7 @@ public class Solver {
 	}
 
 	public static boolean heuristicSearch(Cube scrambled, int depth, Stack<String> pathList) {
-		int threshold = 0;// scrambled.getEstimatedCost();
+		int threshold = getEstimatedCost(scrambled);
 		while(true) {
 			int tmp = heuristicSearch(
 					0, scrambled.clone(), depth, pathList, -1, "", 0, threshold
@@ -74,7 +74,7 @@ public class Solver {
 												int gCost,
 												int threshold
 	){
-		scrambled.executeCommands(move);
+		scrambled.executeCommand(move);
 		int f = gCost + getEstimatedCost(scrambled);
 		if (f > threshold)
 			return f;
@@ -89,6 +89,7 @@ public class Solver {
 		if (depth == 0)
 			return min;
 		for (int i = 0, len = moves_to_try[step].length; i < len; i++) {
+			System.out.println("trying move " + move + " in depth " + depth);
 			if (i == lastMoveCategory) {
 				continue;
 			}
@@ -113,12 +114,32 @@ public class Solver {
 	}
 
 	public static int getEstimatedCost(Cube node) {
-		if (node.equals(new Cube())) return 0;
-		int[] status = new int[20];
-		for (int i = 0; i < status.length; i++){
-			status[i] = -1;
+		float cornersH = 0;
+		float edgesH = 0;
+
+		Cube.CornerCubelet[] Ccubelets = node.getCornerCubelets();
+		for (byte i = 0; i < Ccubelets.length; i++) {
+			Cube.CornerCubelet cornerCubelet = Ccubelets[i];
+			if (cornerCubelet.rotation == Cube.CornerCubeletRotation.R1)
+				cornersH += node.getRot0Corners(Cube.intToCornerCubeletName(i), cornerCubelet.name);
+			else if (cornerCubelet.rotation == Cube.CornerCubeletRotation.R2)
+				cornersH += node.getRot1Corners(Cube.intToCornerCubeletName(i), cornerCubelet.name);
+			else
+				cornersH += node.getRot2Corners(Cube.intToCornerCubeletName(i), cornerCubelet.name);
 		}
-		return manhattanBFS(expandNodes(new Cube[] {node}, -1), 1, status);
+		Cube.EdgeCubelet[] Ecubelets = node.getEdgeCubelets();
+		for (byte i = 0; i < Ecubelets.length; i++) {
+			Cube.EdgeCubelet edgeCubelet = Ecubelets[i];
+			if (edgeCubelet.rotation == Cube.EdgeCubeletRotation.R1)
+				edgesH += node.getRot0Edges(Cube.intToEdgeCubeletName(i), edgeCubelet.name);
+			else
+				edgesH += node.getRot1Edges(Cube.intToEdgeCubeletName(i), edgeCubelet.name);
+		}
+
+		cornersH /= 4;
+		edgesH /= 4;
+		return (int) Math.ceil(Float.max(cornersH, edgesH));
+
 	}
 
 	public static int manhattanBFS(Cube[] nodes, int depth, int[] status) {
@@ -158,7 +179,7 @@ public class Solver {
 
 			for (Cube c : nodes) {
 				for (String m : moves[i]) {
-					ret.add(c.clone().executeCommands(m));
+					ret.add(c.clone().executeCommand(m));
 				}
 			}
 		}
@@ -217,7 +238,7 @@ public class Solver {
 											   String move,
 											   int lastMoveCategory
 	){
-		scrambled.executeCommands(move);
+		scrambled.executeCommand(move);
 		while (solved(step, scrambled)) {
 			step += 1;
 			if (step == 2) {
