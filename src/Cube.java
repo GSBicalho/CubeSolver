@@ -21,7 +21,7 @@ public class Cube {
 		return this.equals(new Cube());
 	}
 
-	enum Square{
+	public static enum Square{
 		F1, F2, F3,
 		F4, F5, F6,
 		F7, F8, F9,
@@ -49,22 +49,22 @@ public class Cube {
 		XX
 	}
 	
-	private final Square[][] INIT_FRONT = {{Square.F1, Square.F2, Square.F3},
+	private static final Square[][] INIT_FRONT = {{Square.F1, Square.F2, Square.F3},
 			 							  {Square.F4, Square.F5, Square.F6},
 			 							  {Square.F7, Square.F8, Square.F9}};
-	private final Square[][] INIT_BACK =  {{Square.B1, Square.B2, Square.B3},
+	private static final Square[][] INIT_BACK =  {{Square.B1, Square.B2, Square.B3},
 										  {Square.B4, Square.B5, Square.B6},
 										  {Square.B7, Square.B8, Square.B9}};
-	private final Square[][] INIT_LEFT =  {{Square.L1, Square.L2, Square.L3},
+	private static final Square[][] INIT_LEFT =  {{Square.L1, Square.L2, Square.L3},
 										  {Square.L4, Square.L5, Square.L6},
 										  {Square.L7, Square.L8, Square.L9}};
-	private final Square[][] INIT_RIGHT = {{Square.R1, Square.R2, Square.R3},
+	private static final Square[][] INIT_RIGHT = {{Square.R1, Square.R2, Square.R3},
 										  {Square.R4, Square.R5, Square.R6},
 										  {Square.R7, Square.R8, Square.R9}};
-	private final Square[][] INIT_UP =    {{Square.U1, Square.U2, Square.U3},
+	private static final Square[][] INIT_UP =    {{Square.U1, Square.U2, Square.U3},
 									   	  {Square.U4, Square.U5, Square.U6},
 									   	  {Square.U7, Square.U8, Square.U9}};
-	private final Square[][] INIT_DOWN =  {{Square.D1, Square.D2, Square.D3},
+	private static final Square[][] INIT_DOWN =  {{Square.D1, Square.D2, Square.D3},
 										  {Square.D4, Square.D5, Square.D6},
 										  {Square.D7, Square.D8, Square.D9}};
 	
@@ -75,9 +75,9 @@ public class Cube {
 	public Side front = new Side();
 	public Side back = new Side();
 	
-	public class InvalidCubeException extends Exception{}
+	public static class InvalidCubeException extends Exception{}
 	
-	public class Side{
+	public static class Side{
 		Square[][] m = new Square[3][3];
 
 		@Override
@@ -125,7 +125,7 @@ public class Cube {
 			System.arraycopy(INIT_BACK[i], 0, back.m[i], 0, 3);
 	}
 	
-	private boolean matrixContains(Square[][] m, Square s){
+	private static boolean matrixContains(Square[][] m, Square s){
 		for (Square[] aM : m) {
 			for (Square anAM : aM) {
 				if (anAM == s) return true;
@@ -135,7 +135,7 @@ public class Cube {
 		return false;
 	}
 	
-	public Color getSquareColor(Square s){
+	public static Color getSquareColor(Square s){
 		if(matrixContains(INIT_UP, s)) 		return UP_COLOR;
 		if(matrixContains(INIT_DOWN, s)) 	return DOWN_COLOR;
 		
@@ -148,7 +148,7 @@ public class Cube {
 		return Color.BLACK;
 	}
 	
-	private void rotateSide(Side side, boolean clockwise){
+	private static void rotateSide(Side side, boolean clockwise){
 		if(clockwise){
 			Square aux = side.m[0][0];
 			side.m[0][0] = side.m[0][2];
@@ -168,13 +168,13 @@ public class Cube {
 		}
 	}
 	
-	private void passFirstLine(Side from, Side to){
+	private static void passFirstLine(Side from, Side to){
 		to.m[0][0] = from.m[0][0];
 		to.m[0][1] = from.m[0][1];
 		to.m[0][2] = from.m[0][2];
 	}
 	
-	private void rotateInCircle(Side u, Side d, Side l, Side r, boolean clockwise){
+	private static void rotateInCircle(Side u, Side d, Side l, Side r, boolean clockwise){
 		/*
 		rotateMatrix(r, false);
 		rotateMatrix(l, true);
@@ -402,11 +402,11 @@ public class Cube {
 		}
 	}
 	
-	private Color[][] rotate2ColorMatrix(Color[][] m){
+	private static Color[][] rotate2ColorMatrix(Color[][] m){
 		return rotateColorMatrix(rotateColorMatrix(m, true), true);
 	}
 	
-	private Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
+	private static Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
 		Color[][] r = new Color[3][3];
 		r[1][1] = m[1][1];
 		
@@ -440,7 +440,7 @@ public class Cube {
 		return result;
 	}
 	
-	private Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
+	private static Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
 		if(i == 1 && j == 1){
 			if(m[1][1] == FRONT_COLOR) 	return Square.F5;
 			if(m[1][1] == BACK_COLOR) 	return Square.B5;
@@ -579,7 +579,7 @@ public class Cube {
 		return c;
 	}
 	
-	public String getSquareColorName(Square s){
+	public static String getSquareColorName(Square s){
 		if(matrixContains(INIT_UP, s)) 		return "Y";
 		if(matrixContains(INIT_DOWN, s)) 	return "W";
 		
@@ -603,7 +603,7 @@ public class Cube {
 		return result + "}";
 	}
 
-	public String reverseCommands(String c){
+	public static String reverseCommands(String c){
 
 		Pattern pattern = Pattern.compile("([lrfbduLRFDBU][2']?)");
 		Matcher matcher = pattern.matcher(c);
@@ -781,25 +781,25 @@ public class Cube {
 		}
 	}
 	
-	public enum CornerCubeletName{
-		FLU(0), FRU(1), FLD(2), FRD(3), BRU(4), BLU(5), BRD(6), BLD(7);
+	public static enum CornerCubeletName{
+		FLU((byte)0), FRU((byte)1), FLD((byte)2), FRD((byte)3), BRU((byte)4), BLU((byte)5), BRD((byte)6), BLD((byte)7);
 		
-		public int v;
-		CornerCubeletName(int v){
+		public byte v;
+		CornerCubeletName(byte v){
 			this.v = v;
 		}
 	}
 	
-	public enum CornerCubeletRotation{
-		R1(0), R2(1), R3(2);
+	public static enum CornerCubeletRotation{
+		R1((byte)0), R2((byte)1), R3((byte)2);
 		
-		public int v;
-		CornerCubeletRotation(int v){
+		public byte v;
+		CornerCubeletRotation(byte v){
 			this.v = v;
 		}
 	}
 	
-	public class CornerCubelet{
+	public static class CornerCubelet{
 		public CornerCubeletName name;
 		public CornerCubeletRotation rotation;
 		
@@ -843,7 +843,7 @@ public class Cube {
 		return m;
 	}
 	
-	public CornerCubeletName squareToCornerCubelet(Square s){
+	public static CornerCubeletName squareToCornerCubelet(Square s){
 		if(s == Square.U1 || s == Square.F1 || s == Square.L3) return CornerCubeletName.FLU;
 		if(s == Square.U3 || s == Square.R1 || s == Square.F3) return CornerCubeletName.FRU;
 		if(s == Square.U7 || s == Square.B1 || s == Square.R3) return CornerCubeletName.BRU;
@@ -857,26 +857,26 @@ public class Cube {
 		return null;
 	}
 
-	public enum EdgeCubeletName{
-		FU(0), FL(1), FR(2), FD(3),
-		BU(4), BR(5), BL(6), BD(7),
-		MLU(8), MLD(9), MRU(10), MRD(11);
+	public static enum EdgeCubeletName{
+		FU((byte)0), FL((byte)1), FR((byte)2), FD((byte)3),
+		BU((byte)4), BR((byte)5), BL((byte)6), BD((byte)7),
+		MLU((byte)8), MLD((byte)9), MRU((byte)10), MRD((byte)11);
 		
-		int v;
-		EdgeCubeletName(int v){
+		byte v;
+		EdgeCubeletName(byte v){
 			this.v = v;
 		}
 	}
 	
-	public enum EdgeCubeletRotation{
-		R1(0), R2(1);
-		int v;
-		EdgeCubeletRotation(int v){
+	public static enum EdgeCubeletRotation{
+		R1((byte)0), R2((byte)1);
+		byte v;
+		EdgeCubeletRotation(byte v){
 			this.v = v;
 		}
 	}
 	
-	public class EdgeCubelet{
+	public static class EdgeCubelet{
 		public EdgeCubeletName name;
 		public EdgeCubeletRotation rotation;
 		
@@ -886,7 +886,7 @@ public class Cube {
 		}
 	}
 	
-	public EdgeCubeletName squareToEdgeCubelet(Square s){
+	public static EdgeCubeletName squareToEdgeCubelet(Square s){
 		if(s == Square.F2 || s == Square.U8) return EdgeCubeletName.FU;
 		if(s == Square.F4 || s == Square.L6) return EdgeCubeletName.FL;
 		if(s == Square.F6 || s == Square.R4) return EdgeCubeletName.FR;
@@ -981,7 +981,7 @@ public class Cube {
 		return m;
 	}
 
-	public Square[] edgeCubeletNameToSquares(EdgeCubeletName ecn){
+	public static Square[] edgeCubeletNameToSquares(EdgeCubeletName ecn){
 		switch(ecn){
 		case BD:
 			return new Square[]{Square.B8, Square.D8};
@@ -1014,7 +1014,7 @@ public class Cube {
 		return null;
 	}
 
-	public Square[] cornerCubeletNameToSquares(CornerCubeletName ccn){
+	public static Square[] cornerCubeletNameToSquares(CornerCubeletName ccn){
 		switch(ccn){
 		case BLD:
 			return new Square[]{Square.B9, Square.L7, Square.D1};
@@ -1064,7 +1064,7 @@ public class Cube {
 		}
 	}
 
-	private Square[] getUpAndLeftSquare(Square s){
+	private static Square[] getUpAndLeftSquare(Square s){
 		Cube c = new Cube();
 		if(matrixContains(INIT_FRONT, s)){
 			while(c.front.m[0][0] != s){
