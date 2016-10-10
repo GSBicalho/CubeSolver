@@ -241,7 +241,10 @@ public class CubeWindowController {
 
 			@Override
 			protected String call() throws Exception {
-				return solve(withHeuristics, depth);
+				long start = System.currentTimeMillis();
+				String result = solve(withHeuristics, depth);
+				System.out.println(System.currentTimeMillis() - start);
+				return result;
 			}};
 
 		Thread loadingThread = new Thread(t, "cube-solver");
@@ -261,6 +264,7 @@ public class CubeWindowController {
 		}else{
 			return Solver.solveCubeSimpleSearch(c, depth);
 		}
+		
 	}
 
 	private void setPaintingMode(boolean value){
