@@ -1,14 +1,11 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Stack;
 
 public class Solver {
 
-	public static final	int MAX_DEPTH_FIRST_STEP = 18;
-	public static final int MAX_DEPTH_SECOND_STEP = 7;
 	public static final String[][][] moves_to_try = {
-			{
+			{ // Possible moves for a scrambled cube (step 0)
 					{"F", "F'", "F2"},
 					{"R", "R'", "R2"},
 					{"U", "U'", "U2"},
@@ -16,7 +13,7 @@ public class Solver {
 					{"L", "L'", "L2"},
 					{"B", "B'", "B2"}
 			},
-			{
+			{ // Possible moves for a cube that is in G1 (H case)
 					{"F2"},
 					{"R2"},
 					{"U", "U'", "U2"},
@@ -26,45 +23,43 @@ public class Solver {
 			}
 	};
 
-	public static ArrayList<Cube> generateReverseSolutionTree(){
-
-		ArrayList<Cube> cubes = new ArrayList<>();
-
-		Cube baseCube = new Cube();
-		cubes.add(baseCube);
-
-		return cubes;
-	}
-
+	// Solve a scrambled cube using IDA* search with 3D Manhattan Distance as
+	// heuristic function. Stop at depth 'depth' on the possibility tree
 	public static String solveCubeHeuristicSearch(Cube scrambled, int depth){
 		StringBuilder path = new StringBuilder("");
 
+		// Use a stack to store sequence of movements leading to solved state
 		Stack<String> pathList = new Stack<>();
+		// run IDA* algorithm
 		if (!heuristicSearch(scrambled, depth, pathList)) return "Failed";
 		System.out.println("path: " + pathList.toString());
+		// Generate readable string of moves
 		while (!pathList.empty()) path.append(pathList.pop()).append(" ");
 
 		return path.toString();
 	}
 
+	// Main IDA* function
 	public static boolean heuristicSearch(Cube scrambled, int depth, Stack<String> pathList) {
 		int threshold = getEstimatedCost(scrambled);
 		System.out.println("estimated cost: " + threshold);
-		while(true) {
+		while(true) { // IDA* Iterative deepening loop
+			// Call IDA* search function
 			int tmp = heuristicSearch(
 					0, scrambled.clone(), depth, pathList, -1, "", 0, threshold
 			);
-			if (tmp == -1) {
+			if (tmp == -1) { // Found solution node
 				return true;
 			}
-			if (tmp == Integer.MAX_VALUE){
+			if (tmp == Integer.MAX_VALUE){ // Couldn't find any more nodes: Failed
 				return false;
 			}
 
-			threshold = tmp;
+			threshold = tmp; // increase threshold
 		}
 	}
 
+	// IDA* Recursive Search Function
 	public static int heuristicSearch(
 												int step,
 												Cube scrambled,
@@ -76,47 +71,66 @@ public class Solver {
 												int threshold
 	){
 		scrambled.executeCommand(move);
+		// A* Fscore = g + h
 		int f = gCost + getEstimatedCost(scrambled);
 		if (f > threshold)
 			return f;
 		while (solved(step, scrambled)) {
+			// Found a solution to current step, advance to the next
 			step = step + 1;
 			if (step == 2){
+				// second step was the last one, push the move that solved
+				// the cube and return
 				path.push(move);
 				return -1;
 			}
 		}
 		int min = Integer.MAX_VALUE;
 		if (depth == 0)
-			return min;
+			return min; // ran out of tries, return "infinite"
+		// For each move category on this step (F, R, U, D, L, B face turns)
 		for (int i = 0, len = moves_to_try[step].length; i < len; i++) {
 			if (i == lastMoveCategory) {
+				// ignore all movements that are on the same category as the last one
 				continue;
 			}
 			if (i + lastMoveCategory == len - 1 && lastMoveCategory >= len / 2){
+				// ignore all movements opposite to the last
+				// one if they are out of order
 				continue;
 			}
 
+			// for each move in that category
 			for (String m : moves_to_try[step][i]) {
+				// expand another node in the tree
 				int tmp = heuristicSearch(
 						step, scrambled.clone(), depth - 1,
 						path, i, m, gCost + 1, threshold
 				);
 				if (tmp == -1){
+					// if expanded node found a solution, push move that lead
+					// here onto the stack and return
 					path.push(move);
 					return -1;
 				}
+				// find lowest cost path to continue (A*)
 				if (tmp < min) min = tmp;
 			}
 		}
+		// return lowest cost path
 		return min;
 	}
 
+	// For any cube configuration, estimate how many moves are needed
+	// to solve it. This approximation must be lower bound to the actual number
+	// of moves needed, to be admissible as a heuristic function to the IDA*
 	public static int getEstimatedCost(Cube node) {
 		float cornersH = 0;
 		float edgesH = 0;
 
+		// get all Corners of the cube
 		Cube.CornerCubelet[] Ccubelets = node.getCornerCubelets();
+		// for each of the 8 corners, sum all the Manhattan Distances of each
 		for (byte i = 0; i < Ccubelets.length; i++) {
 			Cube.CornerCubelet cornerCubelet = Ccubelets[i];
 			if (cornerCubelet.rotation == Cube.CornerCubeletRotation.R1)
@@ -126,7 +140,9 @@ public class Solver {
 			else
 				cornersH += node.getRot2Corners(Cube.intToCornerCubeletName(i), cornerCubelet.name);
 		}
+		// get all Edges of the cube
 		Cube.EdgeCubelet[] Ecubelets = node.getEdgeCubelets();
+		// for each of the 12 edges, sum all the Manhattan Distances of each
 		for (byte i = 0; i < Ecubelets.length; i++) {
 			Cube.EdgeCubelet edgeCubelet = Ecubelets[i];
 			if (edgeCubelet.rotation == Cube.EdgeCubeletRotation.R1)
@@ -135,101 +151,38 @@ public class Solver {
 				edgesH += node.getRot1Edges(Cube.intToEdgeCubeletName(i), edgeCubelet.name);
 		}
 
+		// For the heuristic to be admissible, both values must be divided
+		// by 4, since every face turn moves 4 corners and 4 edges
 		cornersH /= 4;
 		edgesH /= 4;
-		//System.out.println("corners is: " + cornersH + ", edges: " +edgesH);
+		// return the floor of the maximum of both numbers.
+		// This gives a good estimate
 		return (int) Math.floor(Float.max(cornersH, edgesH));
 
 	}
 
-	public static int manhattanBFS(Cube[] nodes, int depth, int[] status) {
-		for (Cube cube : nodes) {
-			Integer[] s = isFinalNode(cube);
-			for (int solvedCubelet : s) {
-				status[solvedCubelet] = depth;
-			}
-			if (Arrays.stream(status).filter(a -> a == -1).count() == 0) {
-				float cornersH = 0;
-				float edgesH = 0;
-				for (int i = 0; i < 8; i++){
-					cornersH += status[i];
-				}
-				for (int i = 8; i < 20; i++){
-					edgesH += status[i];
-				}
-				cornersH /= 4;
-				edgesH /= 4;
-				return (int) Math.ceil(Float.max(cornersH, edgesH));
-			}
-		}
-		return manhattanBFS(expandNodes(nodes, -1), depth + 1, status);
-	}
-
-	private static Cube[] expandNodes(Cube[] nodes, int lastMoveCategory){
-		String[][] moves = moves_to_try[0];
-
-		ArrayList<Cube> ret = new ArrayList<>(nodes.length*15);
-		for (int i = 0, len = moves.length; i < len; i++) {
-			if (i == lastMoveCategory) {
-				continue;
-			}
-			if (i + lastMoveCategory == len - 1 && lastMoveCategory >= len / 2) {
-				continue;
-			}
-
-			for (Cube c : nodes) {
-				for (String m : moves[i]) {
-					ret.add(c.clone().executeCommand(m));
-				}
-			}
-		}
-
-		return ret.toArray(new Cube[ret.size()]);
-	}
-
-	private static Integer[] isFinalNode(Cube node){
-		ArrayList<Integer> tmp = new ArrayList<>(20);
-
-		Cube.CornerCubelet[] ccs = node.getCornerCubelets();
-		for (int i = 0, ccsLength = ccs.length; i < ccsLength; i++) {
-			Cube.CornerCubelet cornerCubelet = ccs[i];
-			if (ccs[cornerCubelet.name.v].name == cornerCubelet.name) {
-				if (cornerCubelet.rotation == Cube.CornerCubeletRotation.R1) {
-					tmp.add(i);
-				}
-			}
-		}
-
-		Cube.EdgeCubelet[] ecs = node.getEdgeCubelets();
-		for (int i = 0, ecsLength = ecs.length; i < ecsLength; i++) {
-			Cube.EdgeCubelet edgeCubelet = ecs[i];
-			if (ecs[edgeCubelet.name.v].name == edgeCubelet.name) {
-				if (edgeCubelet.rotation == Cube.EdgeCubeletRotation.R1) {
-					tmp.add(i);
-				}
-			}
-
-		}
-
-		return tmp.toArray(new Integer[tmp.size()]);
-	}
-
+	// Solve a scrambled cube using blind DFS search for up to a "depth" deep tree
 	public static String solveCubeSimpleSearch(Cube scrambled, int depth){
 		StringBuilder path = new StringBuilder("");
 
+		// Use a stack to store sequence of movements leading to solved state
 		Stack<String> pathList = new Stack<>();
+		// run DFS algorithm
 		if (!simpleSearch(scrambled, depth, pathList)) return "Failed";
 		System.out.println("path: " + pathList.toString());
+		// Generate readable string of moves
 		while (!pathList.empty()) path.append(pathList.pop()).append(" ");
 
 		return path.toString();
 
 	}
 
+	// Wrapper to call DFS the first time around, filling its arguments
 	private static boolean simpleSearch(Cube scrambled, int depth, Stack<String> pathList) {
 		return simpleSearch(0, scrambled.clone(), depth, pathList, "", -1);
 	}
 
+	// DFS Algorithm to solve the cube
 	private static boolean simpleSearch(
 											   int step,
 											   Cube scrambled,
@@ -240,38 +193,56 @@ public class Solver {
 	){
 		scrambled.executeCommand(move);
 		while (solved(step, scrambled)) {
-			step += 1;
-			if (step == 2) {
+			// Found a solution to current step, advance to the next
+			step = step + 1;
+			if (step == 2){
+				// second step was the last one, push the move that solved
+				// the cube and return
 				path.push(move);
 				return true;
 			}
 		}
 		if (depth == 0) {
+			// reached maximum depth, return
 			return false;
 		}
 
+		// For each move category on this step (F, R, U, D, L, B face turns)
 		for (int i = 0, len = moves_to_try[step].length; i < len; i++) {
 			if (i == lastMoveCategory) {
+				// ignore all movements that are on the same category as the last one
 				continue;
 			}
 			if (i + lastMoveCategory == len-1 && lastMoveCategory >= len/2) {
+				// ignore all movements opposite to the last
+				// one if they are out of order
 				continue;
 			}
+			// for each move in that category
 			for (String m : moves_to_try[step][i]) {
 				Cube clone = scrambled.clone();
+				// expand next node with that move
 				if (simpleSearch(step, clone, depth - 1, path, m, i)) {
+					// if this expansion solved the cube, push the move that
+					// lead to it and return
 					path.push(move);
 					return true;
 				}
 			}
 		}
 
+		// Couldn't find solution (cube is impossible with this depth)
 		return false;
 	}
 
+	// Returns if the current cube is solved.
+	// solved depends on the step.
+	// For the first step (0), solved means that
+	// the cube is in the G1 subgroup of permutations (case H)
+	// For the second step (1), solved means that all faces have only one colour
 	public static boolean solved(int step, Cube cube) {
 		switch (step){
-			case 0:
+			case 0: // check for G1 subgroup (case H)
 				// check colours for up/down
 				ArrayList<Cube.Square> facelets_up_down;
 				facelets_up_down = new ArrayList<>();
@@ -304,9 +275,9 @@ public class Solver {
 								facelets_front_back.contains(cube.front.m[1][2]) &&
 								facelets_front_back.contains(cube.back.m[1][0]) &&
 								facelets_front_back.contains(cube.back.m[1][2]);
-			case 1:
+			case 1: // check if the cube is actually 'solved'
 			default:
-				return cube.equals(new Cube());
+				return cube.solved();
 
 		}
 
