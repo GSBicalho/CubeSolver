@@ -49,6 +49,7 @@ public class Solver {
 
 	public static boolean heuristicSearch(Cube scrambled, int depth, Stack<String> pathList) {
 		int threshold = getEstimatedCost(scrambled);
+		System.out.println("estimated cost: " + threshold);
 		while(true) {
 			int tmp = heuristicSearch(
 					0, scrambled.clone(), depth, pathList, -1, "", 0, threshold
@@ -89,7 +90,6 @@ public class Solver {
 		if (depth == 0)
 			return min;
 		for (int i = 0, len = moves_to_try[step].length; i < len; i++) {
-			System.out.println("trying move " + move + " in depth " + depth);
 			if (i == lastMoveCategory) {
 				continue;
 			}
@@ -138,7 +138,8 @@ public class Solver {
 
 		cornersH /= 4;
 		edgesH /= 4;
-		return (int) Math.ceil(Float.max(cornersH, edgesH));
+		System.out.println("corners is: " + cornersH + ", edges: " +edgesH);
+		return (int) Math.floor(Float.max(cornersH, edgesH));
 
 	}
 
