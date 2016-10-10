@@ -79,7 +79,7 @@ public class Solver {
 		int f = gCost + getEstimatedCost(scrambled);
 		if (f > threshold)
 			return f;
-		if (solved(step, scrambled)) {
+		while (solved(step, scrambled)) {
 			step = step + 1;
 			if (step == 2){
 				path.push(move);
@@ -103,14 +103,13 @@ public class Solver {
 						path, i, m, gCost + 1, threshold
 				);
 				if (tmp == -1){
-					path.push(m);
+					path.push(move);
 					return -1;
 				}
 				if (tmp < min) min = tmp;
 			}
-			return min;
 		}
-		return -1;
+		return min;
 	}
 
 	public static int getEstimatedCost(Cube node) {
@@ -138,7 +137,7 @@ public class Solver {
 
 		cornersH /= 4;
 		edgesH /= 4;
-		System.out.println("corners is: " + cornersH + ", edges: " +edgesH);
+		//System.out.println("corners is: " + cornersH + ", edges: " +edgesH);
 		return (int) Math.floor(Float.max(cornersH, edgesH));
 
 	}
