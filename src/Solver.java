@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -74,7 +75,7 @@ public class Solver {
 												int threshold
 	){
 		scrambled.executeCommands(move);
-		int f = gCost + 0; // scrambled.getEstimatedCost();
+		int f = gCost + getEstimatedCost(scrambled);
 		if (f > threshold)
 			return f;
 		if (solved(step, scrambled)) {
@@ -113,34 +114,34 @@ public class Solver {
 
 	public static int getEstimatedCost(Cube node) {
 		if (node.equals(new Cube())) return 0;
-		int[] cornersCost = new int[8];
-		int[] edgesCost = new int[12];
-		Cube.CornerCubelet[] corners = node.getCornerCubelets();
-
-		for (Cube.CornerCubeletName i : Cube.CornerCubeletName.values()){
-
+		int[] status = new int[20];
+		for (int i = 0; i < status.length; i++){
+			status[i] = -1;
 		}
-
-		return 0;
+		return manhattanBFS(expandNodes(new Cube[] {node}, -1), 1, status);
 	}
 
-	public static int manhattanBFS(Cube[] nodes) {
-		boolean finishedCorner = false;
-		boolean finished1Edges = false;
-		boolean finished2Edges = false;
-
-		for (Cube cube : nodes){
-			// from least to most significant bit:
-			// 0x1 will be 1 if finished corners
-			// 0x2 will be 1 if finished first set of edges
-			// 0x4 will be 1 if finished second set of edges
-			int status = isFinalNode(cube);
-			finishedCorner = finishedCorner || ((status & 0x1) == 0x1);
-			finished1Edges = finished1Edges || ((status & 0x2) == 0x2);
-			finished2Edges = finished2Edges || ((status & 0x4) == 0x4);
+	public static int manhattanBFS(Cube[] nodes, int depth, int[] status) {
+		for (Cube cube : nodes) {
+			Integer[] s = isFinalNode(cube);
+			for (int solvedCubelet : s) {
+				status[solvedCubelet] = depth;
+			}
+			if (Arrays.stream(status).filter(a -> a == -1).count() == 0) {
+				float cornersH = 0;
+				float edgesH = 0;
+				for (int i = 0; i < 8; i++){
+					cornersH += status[i];
+				}
+				for (int i = 8; i < 20; i++){
+					edgesH += status[i];
+				}
+				cornersH /= 4;
+				edgesH /= 4;
+				return (int) Math.ceil(Float.max(cornersH, edgesH));
+			}
 		}
-		if (finished1Edges && finished2Edges && finishedCorner) return 1;
-		else return 1 + manhattanBFS(expandNodes(nodes, -1));
+		return manhattanBFS(expandNodes(nodes, -1), depth + 1, status);
 	}
 
 	private static Cube[] expandNodes(Cube[] nodes, int lastMoveCategory){
@@ -165,10 +166,31 @@ public class Solver {
 		return ret.toArray(new Cube[ret.size()]);
 	}
 
-	private static int isFinalNode(Cube node){
-		int ret = 0;
-		ret = ret | 0x1;
-		return -1;
+	private static Integer[] isFinalNode(Cube node){
+		ArrayList<Integer> tmp = new ArrayList<>(20);
+
+		Cube.CornerCubelet[] ccs = node.getCornerCubelets();
+		for (int i = 0, ccsLength = ccs.length; i < ccsLength; i++) {
+			Cube.CornerCubelet cornerCubelet = ccs[i];
+			if (ccs[cornerCubelet.name.v].name == cornerCubelet.name) {
+				if (cornerCubelet.rotation == Cube.CornerCubeletRotation.R1) {
+					tmp.add(i);
+				}
+			}
+		}
+
+		Cube.EdgeCubelet[] ecs = node.getEdgeCubelets();
+		for (int i = 0, ecsLength = ecs.length; i < ecsLength; i++) {
+			Cube.EdgeCubelet edgeCubelet = ecs[i];
+			if (ecs[edgeCubelet.name.v].name == edgeCubelet.name) {
+				if (edgeCubelet.rotation == Cube.EdgeCubeletRotation.R1) {
+					tmp.add(i);
+				}
+			}
+
+		}
+
+		return tmp.toArray(new Integer[tmp.size()]);
 	}
 
 	public static String solveCubeSimpleSearch(Cube scrambled, int depth){
