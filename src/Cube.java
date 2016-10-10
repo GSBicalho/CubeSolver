@@ -1148,4 +1148,270 @@ public class Cube {
 		shapeCornersFromCubelets(corners);
 		shapeEdgesFromCubelets(edges);
 	}
+
+	
+	
+	public int getRot0Corners(CornerCubeletName from, CornerCubeletName to){
+		if(from == to) return 0;
+		
+		switch(from){
+		case FLU:
+			switch(to){
+			case FRU: case FLD: case FRD: case BRU: case BLD:
+				return 1;
+			case BLU: case BRD: 
+				return 2;
+			}
+		case FLD:
+			switch(to){
+			case FRD: case FLU: case FRU: case BRD: case BLU:
+				return 1;
+			case BLD: case BRU: 
+				return 2;
+			}
+		case FRD:
+			switch(to){
+			case FLD: case FRU: case FLU: case BLD: case BRU:
+				return 1;
+			case BRD: case BLU: 
+				return 2;
+			}
+		case FRU:
+			switch(to){
+			case FLU: case FRD: case FLD: case BLU: case BRD:
+				return 1;
+			case BRU: case BLD: 
+				return 2;
+			}
+		}
+		
+		return 0;
+	}
+
+	public int getRot1Corners(CornerCubeletName from, CornerCubeletName to){
+		if(from == to) return 2;
+		
+		switch(from){
+		case FLU:
+			switch(to){
+			case FRU: case BLU:
+				return 1;
+			case FLD: case FRD: case BRU: case BLD: case BRD:
+				return 2;
+			}
+		case FLD:
+			switch(to){
+			case FRD: case BLD:
+				return 1;
+			case FLU: case FRU: case BRD: case BLU: case BRU:
+				return 2;
+			}
+		case FRD:
+			switch(to){
+			case FLD: case BRD:
+				return 1;
+			case FRU: case FLU: case BLD: case BRU: case BLU:
+				return 2;
+			}
+		case FRU:
+			switch(to){
+			case FLU: case BRU:
+				return 1;
+			case FRD: case FLD: case BLU: case BRD: case BLD:
+				return 2;
+			}
+		}
+		
+		return 0;
+	}
+
+	public int getRot2Corners(CornerCubeletName from, CornerCubeletName to){
+		if(from == to) return 2;
+		
+		switch(from){
+		case FLU:
+			switch(to){
+			case BLU: case FLD:
+				return 1;
+			case FRU: case FRD: case BRU: case BLD: case BRD:
+				return 2;
+			}
+		case FLD:
+			switch(to){
+			case BLD: case FLU:
+				return 1;
+			case FRD: case FRU: case BRD: case BLU: case BRU:
+				return 2;
+			}
+		case FRD:
+			switch(to){
+			case BRD: case FRU:
+				return 1;
+			case FLD: case FLU: case BLD: case BLU: case BRU:
+				return 2;
+			}
+		case FRU:
+			switch(to){
+			case BRU: case FRD:
+				return 1;
+			case FLD: case FLU: case BLD: case BLU: case BRD:
+				return 2;
+			}
+		}
+		
+		return 0;
+	}
+
+
+	public int getRot0Edges(EdgeCubeletName from, EdgeCubeletName to){
+		if(from == to) return 0;
+		
+		switch(from){
+		case FU:
+			switch(to){
+			case FL: case FR: case FD: case BU: case MLU: case MRU:
+				return 1;
+			case BR: case BL: case BD: case MLD: case MRD:
+				return 2;
+			}
+		case FD:
+			switch(to){
+			case FL: case FR: case FU: case BD: case MLD: case MRD:
+				return 1;
+			case BR: case BL: case BU: case MLU: case MRU:
+				return 2;
+			}
+		case FL:
+			switch(to){
+			case FU: case FR: case FD: case BL:
+				return 1;
+			case BR: case BD: case BU: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			}
+		case FR:
+			switch(to){
+			case FU: case FL: case FD: case BR:
+				return 1;
+			case BL: case BD: case BU: case MRU: case MLU: case MRD: case MLD:
+				return 2;
+			}
+		case BD:
+			switch(to){
+			case BL: case BR: case BU: case FD: case MLD: case MRD:
+				return 1;
+			case FR: case FL: case FU: case MLU: case MRU:
+				return 2;
+			}
+		case BL:
+			switch(to){
+			case BU: case BR: case BD: case FL:
+				return 1;
+			case FR: case FD: case FU: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			}
+		case BR:
+		case BU:
+		
+		case MLU:
+			switch(to){
+			case FU: case BU: case MRU: case MLD:
+				return 1;
+			case FL: case FR: case FD: case BL: case BD: case BR: case MRD:
+				return 2;
+			}
+		case MRU:
+			switch(to){
+			case FU: case BU: case MLU: case MRD:
+				return 1;
+			case FR: case FL: case FD: case BR: case BD: case BL: case MLD:
+				return 2;
+			}
+		case MRD:
+			switch(to){
+			case FD: case BD: case MLD: case MRU:
+				return 1;
+			case FR: case FL: case FU: case BR: case BU: case BL: case MLU:
+				return 2;
+			}
+		case MLD:
+			switch(to){
+			case FD: case BD: case MRD: case MLU:
+				return 1;
+			case FL: case FR: case FU: case BL: case BU: case BR: case MRU:
+				return 2;
+			}
+		}
+		
+		return 0;
+	}
+	
+	public int getRot1Edges(EdgeCubeletName from, EdgeCubeletName to){
+		if(from == to) return 3;
+		
+		switch(from){
+		case FU:
+			switch(to){
+			case FL: case FR: case BL: case BR: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			case BD: case FD: case BU:
+				return 3;
+			}
+		case FD:
+			switch(to){
+			case FL: case FR: case BL: case BR: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			case BU: case FU: case BD:
+				return 3;
+			}
+		case FL:
+			switch(to){
+			case FU: case BD: case BU: case FD: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			case FR: case BL: case BR:
+				return 3;
+			}
+		case FR:
+			switch(to){
+			case FU: case BD: case BU: case FD: case MRU: case MLU: case MLD: case MRD:
+				return 2;
+			case FL: case BL: case BR:
+				return 3;
+			}
+		case BD:
+			switch(to){
+			case BL: case BR: case FL: case FR: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			case FU: case BU: case FD:
+				return 3;
+			}
+		case BL:
+			switch(to){
+			case FU: case BD: case BU: case FD: case MLU: case MRU: case MLD: case MRD:
+				return 2;
+			case FR: case FL: case BR:
+				return 3;
+			}
+		case BR:
+			
+		case BU:
+		
+		case MLU:
+			switch(to){
+			case BL: case FL: 
+				return 1;
+			case FD: case BU: case FU: case BD: case FR: case BR:
+				return 2;
+			case MRD: case MLD: case MRU:
+				return 3;
+			}
+		case MRU:
+			
+		case MRD:
+			
+		case MLD:
+			
+		}
+		
+		return 0;
+	}
 }
