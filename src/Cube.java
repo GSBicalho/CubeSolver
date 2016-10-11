@@ -16,7 +16,7 @@ public class Cube {
 
 	public static final Color ERROR_COLOR = Color.DARKGRAY;
 
-
+	//verifica se o cubo está resolvido, ou seja, está igual a um cubo em seu estado inicial
 	public boolean solved() {
 		return this.equals(new Cube());
 	}
@@ -49,6 +49,7 @@ public class Cube {
 		XX
 	}
 	
+	//Faces em seus estados iniciais
 	private static final Square[][] INIT_FRONT = {{Square.F1, Square.F2, Square.F3},
 			 							  {Square.F4, Square.F5, Square.F6},
 			 							  {Square.F7, Square.F8, Square.F9}};
@@ -107,7 +108,8 @@ public class Cube {
 		return ret && back.equals(other.back);
 
 	}
-
+	
+	//reinicia o cubo para seu estado inicial
 	public void reset(){
 		for(int i = 0; i < 3; i++)
 			System.arraycopy(INIT_UP[i], 0, up.m[i], 0, 3);
@@ -125,6 +127,7 @@ public class Cube {
 			System.arraycopy(INIT_BACK[i], 0, back.m[i], 0, 3);
 	}
 	
+	//verifica se um lado contem o Square passado
 	private static boolean matrixContains(Square[][] m, Square s){
 		for (Square[] aM : m) {
 			for (Square anAM : aM) {
@@ -135,6 +138,7 @@ public class Cube {
 		return false;
 	}
 	
+	//retorna cor utilizada para desenhar o quadrado passado
 	public static Color getSquareColor(Square s){
 		if(matrixContains(INIT_UP, s)) 		return UP_COLOR;
 		if(matrixContains(INIT_DOWN, s)) 	return DOWN_COLOR;
@@ -148,6 +152,7 @@ public class Cube {
 		return Color.BLACK;
 	}
 	
+	//rotaciona o lado da matriz
 	private static void rotateSide(Side side, boolean clockwise){
 		if(clockwise){
 			Square aux = side.m[0][0];
@@ -168,19 +173,18 @@ public class Cube {
 		}
 	}
 	
+	//copia a primeira linha de From para o side To
 	private static void passFirstLine(Side from, Side to){
 		to.m[0][0] = from.m[0][0];
 		to.m[0][1] = from.m[0][1];
 		to.m[0][2] = from.m[0][2];
 	}
 	
+	//rotaciona as primairas linhas dos Sides passados
+	//Numa rotação horaria, 
+	//A primeira linha do side up, vai para o right, 
+	//right para down, down para left, left para up;
 	private static void rotateInCircle(Side u, Side d, Side l, Side r, boolean clockwise){
-		/*
-		rotateMatrix(r, false);
-		rotateMatrix(l, true);
-		rotateMatrix(u, true);
-		rotateMatrix(u, true);
-		*/
 		Side n = clockwise ? l : r;
 
 		Square[] aux = {d.m[0][0], d.m[0][1], d.m[0][2]};
@@ -196,25 +200,23 @@ public class Cube {
 		n.m[0][0] = aux[0];
 		n.m[0][1] = aux[1];
 		n.m[0][2] = aux[2];
-
-		/*
-		rotateMatrix(u, true);
-		rotateMatrix(u, true);
-		rotateMatrix(l, false);
-		rotateMatrix(r, true);
-		*/
 	}
 	
+	//rotaciona o lado da frente
 	public Cube turnFront(boolean clockwise){
+		//rotaciona a matriz front
 		rotateSide(front, !clockwise);
 		
+		//rotaciona cada lado que conecta a Front, para q a linha/coluna que encosta em front fique na primeira linha 
 		rotateSide(right, false);
 		rotateSide(left, true);
 		rotateSide(up, true);
 		rotateSide(up, true);
 		
+		//rotaciona em circulo as primeiras linhas das matrizes
 		rotateInCircle(up, down, left, right, clockwise);
 		
+		//desrotaciona os lados
 		rotateSide(right, true);
 		rotateSide(left, false);
 		rotateSide(up, true);
@@ -223,6 +225,8 @@ public class Cube {
 		return this;
 	}
 	
+	
+	//Equivalente do turnFront, mas para o lado Back
 	public Cube turnBack(boolean clockwise){
 		rotateSide(back, !clockwise);
 		
@@ -239,6 +243,7 @@ public class Cube {
 		return this;
 	}
 	
+	//Equivalente do turnFront, mas para o lado Up
 	public Cube turnUp(boolean clockwise){
 		rotateSide(up, !clockwise);
 		
@@ -247,6 +252,7 @@ public class Cube {
 		return this;
 	}
 	
+	//Equivalente do turnFront, mas para o lado Down
 	public Cube turnDown(boolean clockwise){
 		rotateSide(down, !clockwise);
 		
@@ -258,7 +264,9 @@ public class Cube {
 		rotateSide(left, true);
 		rotateSide(right, true);
 		rotateSide(right, true);
+		
 		rotateInCircle(front, back, left, right, clockwise);
+		
 		rotateSide(front, true);
 		rotateSide(front, true);
 		rotateSide(back, true);
@@ -271,6 +279,7 @@ public class Cube {
 		return this;
 	}
 	
+	//Equivalente do turnFront, mas para o lado Left
 	public Cube turnLeft(boolean clockwise){
 		rotateSide(left, !clockwise);
 		
@@ -287,6 +296,7 @@ public class Cube {
 		return this;
 	}
 	
+	//Equivalente do turnFront, mas para o lado Right
 	public Cube turnRight(boolean clockwise){
 		rotateSide(right, !clockwise);
 		
@@ -294,7 +304,9 @@ public class Cube {
 		rotateSide(down, true);
 		rotateSide(front, true);
 		rotateSide(back, false);
+		
 		rotateInCircle(up, down, front, back, clockwise);
+		
 		rotateSide(up, false);
 		rotateSide(down, false);
 		rotateSide(front, false);
@@ -307,20 +319,27 @@ public class Cube {
 		reset();
 	}
 	
+	//Cria o cubo ao ser passado 6 matrizes 3x3 com as cores dos lados do cubo
+	
 	//Matrix containing 6 3x3 matrixes
 	public Cube(Color[][][] coloredCube) throws InvalidCubeException{
-		for(int i = 0; i < 3; i++){
-			for(int j = 0; j < 3; j++){
-				front.m[i][j] = Square.XX;
-				back.m[i][j] = Square.XX;
-				left.m[i][j] = Square.XX;
-				right.m[i][j] = Square.XX;
-				up.m[i][j] = Square.XX;
-				down.m[i][j] = Square.XX;
-			}
-		}
-		
+		//para o funcionamento do metodo, necessitamos de 6 matrizes 3x3
+		//caso isso não ocorra, ou as matrizes passadas sejam invalidas
+		//é lançada uma InvalidCubeException
 		try{
+			//inicializa os lados com vazio
+			for(int i = 0; i < 3; i++){
+				for(int j = 0; j < 3; j++){
+					front.m[i][j] = Square.XX;
+					back.m[i][j] = Square.XX;
+					left.m[i][j] = Square.XX;
+					right.m[i][j] = Square.XX;
+					up.m[i][j] = Square.XX;
+					down.m[i][j] = Square.XX;
+				}
+			}
+			
+			//encontra, verificando o meio, qual será a matriz da frente, dos lados e de traz
 			Color[][] fM = null, bM = null, lM = null, rM = null, uM = null, dM = null;
 			for(int i = 0; i < 6; i++){
 				if(coloredCube[i][1][1] == FRONT_COLOR) fM = coloredCube[i]; else
@@ -333,7 +352,9 @@ public class Cube {
 				if(coloredCube[i][1][1] == DOWN_COLOR) dM = coloredCube[i];
 			}
 			
-			
+			//Para cada local das matrizes de cores, acha o facelet correspondente.
+			//Antes de passar as matrizes para getCorrespondingSquare,
+			//rotaciona-se a matriz, num procedimento similar ao feito nos turns
 			for(int i = 0; i < 3; i++){
 				for(int j = 0; j < 3; j++){
 					front.m[i][j] = getCorrespondingSquare(fM, 
@@ -375,6 +396,8 @@ public class Cube {
 				}
 			}
 			
+			//Se algum dos Squares não foi inicializado,
+			//o cubo eh invalido, e é lançada  uma exceção
 			if(matrixContains(front.m, Square.XX) || 
 			   matrixContains(back.m, Square.XX) || 
 			   matrixContains(left.m, Square.XX) || 
@@ -384,6 +407,7 @@ public class Cube {
 				throw new Exception();
 			}
 			
+			//Verifica se só existe um Square de cada nas matrizes
 			ArrayList<Square> testArray = new ArrayList<>();
 			Side[] sides = {front, back, left, right, up, down};
 			for(Side s : sides){
@@ -402,9 +426,13 @@ public class Cube {
 		}
 	}
 	
+	//rotaciona a matriz em 180 graus
+	
 	private static Color[][] rotate2ColorMatrix(Color[][] m){
 		return rotateColorMatrix(rotateColorMatrix(m, true), true);
 	}
+	
+	//rotaciona a matriz de Colors em 90 graus
 	
 	private static Color[][] rotateColorMatrix(Color[][] m, boolean clockwise){
 		Color[][] r = new Color[3][3];
@@ -432,6 +460,8 @@ public class Cube {
 		}
 	}
 	
+	//copia a matriz 3x3 de Colors
+	
 	private static Color[][] copyColorMatrix(Color[][] m){
 		Color[][] result = new Color[3][3];
 		for(int i = 0; i < 3; i++){
@@ -440,7 +470,11 @@ public class Cube {
 		return result;
 	}
 	
+	//retorna o Square que deveria estar na posição (i,j) da matriz m, dada as cores passadas; 
+	
 	private static Square getCorrespondingSquare(Color[][] m, Color[][] u, Color[][] d, Color[][] l, Color[][] r, int i, int j){
+		//se estiver procurando o Square do meio,
+		//precisamos apenas verificar sua cor
 		if(i == 1 && j == 1){
 			if(m[1][1] == FRONT_COLOR) 	return Square.F5;
 			if(m[1][1] == BACK_COLOR) 	return Square.B5;
@@ -452,6 +486,7 @@ public class Cube {
 			if(m[1][1] == DOWN_COLOR) 	return Square.D5;
 		}
 		
+		// copiamos a matriz para não modifica-la fora do metodo
 		m = copyColorMatrix(m);
 		
 		u = copyColorMatrix(u);
@@ -460,7 +495,8 @@ public class Cube {
 		l = copyColorMatrix(l);
 		r = copyColorMatrix(r);
 		
-		//we rotate them, so we only have to check [0,0] and [0,1]
+		//Rotacionamos as matrizes, assim só precisamos verificar as posições [0,0], para corners,
+		//e [0,1] para os edges
 		if(i == 0 && j == 2 || i == 1 && j == 2){
 			m = rotateColorMatrix(m, false);
 			
@@ -488,7 +524,7 @@ public class Cube {
 			l = aux;
 		}
 		
-		if(i==1 || j == 1){ //se for um dos meios
+		if(i==1 || j == 1){ //se for um dos edges
 			Color searched = m[0][1];
 			Color upFromSearched = u[0][1];
 			if(searched == FRONT_COLOR){
@@ -559,8 +595,12 @@ public class Cube {
 			}
 		}
 		
+		//caso não seja nenhuma das opções acima
+		//retorna Square inválido
 		return Square.XX;
 	}
+	
+	//clona o Cube
 	
 	public Cube clone(){
 		Cube c = new Cube();
@@ -579,6 +619,9 @@ public class Cube {
 		return c;
 	}
 	
+	//retorna o nome da cor do Square
+	//utilizado no toString
+	
 	public static String getSquareColorName(Square s){
 		if(matrixContains(INIT_UP, s)) 		return "Y";
 		if(matrixContains(INIT_DOWN, s)) 	return "W";
@@ -592,6 +635,8 @@ public class Cube {
 		return "X";
 	}
 	
+	//retorna uma String que descreve a matriz front
+	
 	public String toString(){
 		String result = "{\n";
 		for(int i = 0; i < 3; i++){
@@ -602,6 +647,9 @@ public class Cube {
 		}
 		return result + "}";
 	}
+	
+	//Inverte a string de comandos,
+	//mantedo a integridade dos comandos
 
 	public static String reverseCommands(String c){
 
@@ -624,8 +672,9 @@ public class Cube {
 		}
 
 		return reverse.toString();
-
 	}
+	
+	//Executa uma String de comandos de rotação no Cube
 
 	public Cube executeCommands(String c){
 		Pattern pattern = Pattern.compile("([lrfbduLRFDBU][2']?)");
@@ -641,6 +690,8 @@ public class Cube {
 
 		return this;
 	}
+	
+	//Executa um comando de rotação no Cube
 	
 	public Cube executeCommand(String c){
 		switch(c.toUpperCase()){
@@ -672,6 +723,8 @@ public class Cube {
 		return this;
 	}
 	
+	//Desenha o Cube no Context passado
+	
 	public void draw(GraphicsContext gc){
 		int hOffset = 10;
 		int vOffset = 10;
@@ -690,7 +743,7 @@ public class Cube {
 		gc.setStroke(Color.BLACK);
 		gc.setLineWidth(2f);
 		
-		//front side
+		//draw front side
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
 				gc.setFill(getSquareColor(front.m[j][i]));
@@ -700,7 +753,7 @@ public class Cube {
 			}
 		}
 		
-		//left side
+		//draw left side
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
 				gc.setFill(getSquareColor(left.m[j][i]));
@@ -710,7 +763,7 @@ public class Cube {
 			}
 		}
 		
-		//down side
+		//draw down side
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
 				gc.setFill(getSquareColor(down.m[j][i]));
@@ -720,11 +773,12 @@ public class Cube {
 			}
 		}
 		
-		//up side
+		//draw up side
 		for(int i = 0; i < 3; i++){
 			int initialPointX = hPadding + hOffset + sizeOfSquare * 3 + hDiag * 3 + 1;
 			int initialPointY = - vPadding + vOffset + sizeOfSquare*4 - 3 * vDiag;
 			
+			//calcula os pontos dos poligonos que fazem o lado de cima
 			for(int j = 0; j < 3; j++){
 				double[] xs = {
 						initialPointX + sizeOfSquare * j - hDiag * i,
@@ -745,11 +799,12 @@ public class Cube {
 			}
 		}
 		
-		//right side
+		//draw right side
 		for(int i = 0; i < 3; i++){
 			int initialPointX = hPadding*2 + hOffset + sizeOfSquare * 6;
 			int initialPointY = vOffset + sizeOfSquare*4;
 			
+			//calcula os pontos dos poligonos que fazem o lado da direita
 			for(int j = 0; j < 3; j++){
 				double[] ys = {
 						initialPointY + sizeOfSquare * j - vDiag * i,
@@ -770,7 +825,7 @@ public class Cube {
 			}
 		}
 		
-		//back side
+		//draw back side
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 3; j++){
 				gc.setFill(getSquareColor(back.m[j][i]));
@@ -780,6 +835,8 @@ public class Cube {
 			}
 		}
 	}
+	
+	//transforma de int para o CornerCubeletName correspondente
 
 	public static CornerCubeletName intToCornerCubeletName(byte i){
 		switch (i){
@@ -803,6 +860,10 @@ public class Cube {
 		}
 	}
 	
+	//Define os possiveis nomes para os CornerCubelets
+	//Os nomes definem a posição inicial do CornerCubelet
+	//E é definido pelas iniciais do local inicial
+	
 	public static enum CornerCubeletName{
 		FLU((byte)0), FRU((byte)1), FLD((byte)2), FRD((byte)3), BRU((byte)4), BLU((byte)5), BRD((byte)6), BLD((byte)7);
 		
@@ -811,6 +872,8 @@ public class Cube {
 			this.v = v;
 		}
 	}
+	
+	//Define as possiveis rotações de cada CornerCubelet
 	
 	public static enum CornerCubeletRotation{
 		R1((byte)0), R2((byte)1), R3((byte)2);
@@ -821,6 +884,11 @@ public class Cube {
 		}
 	}
 	
+	//Definido um corner Cubelet.
+	//Um CornerCubelet representa um dos cubos menores que compoem o Cubo
+	//Ele tem um Nome, que define sua posiçã inicial
+	//e uma rotação, que define sua rotação atual
+	
 	public static class CornerCubelet{
 		public CornerCubeletName name;
 		public CornerCubeletRotation rotation;
@@ -830,6 +898,8 @@ public class Cube {
 			this.rotation = rotation;
 		}
 	}
+	
+	//Retorna um vetor com os oitos CornerCubelets que definem o Cube
 	
 	public CornerCubelet[] getCornerCubelets(){
 		CornerCubelet[] m = new CornerCubelet[8];
@@ -865,6 +935,8 @@ public class Cube {
 		return m;
 	}
 	
+	//Retorna, dado um Square, qual o nome do Cubelet a que ele pertence
+	
 	public static CornerCubeletName squareToCornerCubelet(Square s){
 		if(s == Square.U1 || s == Square.F1 || s == Square.L3) return CornerCubeletName.FLU;
 		if(s == Square.U3 || s == Square.R1 || s == Square.F3) return CornerCubeletName.FRU;
@@ -878,6 +950,8 @@ public class Cube {
 		
 		return null;
 	}
+	
+	//Euivalente do intToCornerCubeletName, mas para EdgeCubelets
 
 	public static EdgeCubeletName intToEdgeCubeletName(byte i){
 		switch (i){
@@ -908,6 +982,8 @@ public class Cube {
 				return EdgeCubeletName.MRD;
 		}
 	}
+	
+	//Equivalente do enum CornerCubeletName para os EdgeCubelets
 
 	public static enum EdgeCubeletName{
 		FU((byte)0), FL((byte)1), FR((byte)2), FD((byte)3),
@@ -920,6 +996,9 @@ public class Cube {
 		}
 	}
 	
+	//Equivalente do enum CornerCubeletRotation para os EdgeCubelets
+	//Como os EdgeCubelets só possuem duas cores, eles só possuem duas rotaçoes
+	
 	public static enum EdgeCubeletRotation{
 		R1((byte)0), R2((byte)1);
 		byte v;
@@ -928,6 +1007,10 @@ public class Cube {
 		}
 	}
 	
+	//Definido um Edge Cubelet.
+	//Um EdgeCubelet representa um dos cubos menores que compoem o Cubo
+	//Ele tem um Nome, que define sua posição inicial
+	//e uma rotação, que define sua rotação atual
 	public static class EdgeCubelet{
 		public EdgeCubeletName name;
 		public EdgeCubeletRotation rotation;
@@ -938,6 +1021,7 @@ public class Cube {
 		}
 	}
 	
+	//Equivalente do squareToCornerCubelet para os EdgeCubelets
 	public static EdgeCubeletName squareToEdgeCubelet(Square s){
 		if(s == Square.F2 || s == Square.U8) return EdgeCubeletName.FU;
 		if(s == Square.F4 || s == Square.L6) return EdgeCubeletName.FL;
@@ -957,6 +1041,7 @@ public class Cube {
 		return null;
 	}
 	
+	//Equivalente do getCornerCubelets para os EdgeCubelets
 	public EdgeCubelet[] getEdgeCubelets(){
 		EdgeCubelet[] m = new EdgeCubelet[12];
 		
@@ -1032,7 +1117,8 @@ public class Cube {
 		
 		return m;
 	}
-
+	
+	//Equivalente do cornerCubeletNameToSquares para os EdgeCubelets
 	public static Square[] edgeCubeletNameToSquares(EdgeCubeletName ecn){
 		switch(ecn){
 		case BD:
@@ -1065,7 +1151,8 @@ public class Cube {
 		}
 		return null;
 	}
-
+	
+	//Retorna os Squares que compooem um CornerCubelet
 	public static Square[] cornerCubeletNameToSquares(CornerCubeletName ccn){
 		switch(ccn){
 		case BLD:
@@ -1090,7 +1177,8 @@ public class Cube {
 
 		return null;
 	}
-
+	
+	//Utiliza os CornerCubelets passados para pintar os corners do Cube
 	private void shapeCornersFromCubelets(CornerCubelet[] cc){
 		int[][] corners = {{0, 0}, {0, 2},{2, 0},{2, 2}};
 		int[] correctOrder = {0,2, 3, 1};
@@ -1116,6 +1204,8 @@ public class Cube {
 		}
 	}
 
+	//Retorna os Squares que ficariam acima e a esquerda do Square s
+	//caso ele estivesse na posição 0,0 no lado front
 	private static Square[] getUpAndLeftSquare(Square s){
 		Cube c = new Cube();
 		if(matrixContains(INIT_FRONT, s)){
@@ -1152,7 +1242,8 @@ public class Cube {
 
 		return new Square[]{c.up.m[2][0], c.left.m[0][2]};
 	}
-
+	
+	//Utiliza os EdgeCubelets passados para pintar as edges do Cube
 	private void shapeEdgesFromCubelets(EdgeCubelet[] ec){
 		int[] correctOrder = {0, 1, 3, 2};
 
@@ -1195,14 +1286,18 @@ public class Cube {
 			turnRight(true);
 		}
 	}
-
+	
+	//Utiliza os CornerCubelets e EdgeCubelets passados
+	//Para pintar o cubo
 	public void shapeFromCubelets(CornerCubelet[] corners,EdgeCubelet[] edges){
 		shapeCornersFromCubelets(corners);
 		shapeEdgesFromCubelets(edges);
 	}
 
 	
+	//TABELAS DE HEURÍSTICAS
 	
+	//Heurística para os CornerCubelets com Rotação 0
 	public int getRot0Corners(CornerCubeletName from, CornerCubeletName to){
 		if(from == to) return 0;
 
@@ -1268,6 +1363,7 @@ public class Cube {
 		return 0;
 	}
 
+	//Heurística para os CornerCubelets com Rotação 1
 	public int getRot1Corners(CornerCubeletName from, CornerCubeletName to){
 		if(from == to) return 2;
 		
@@ -1333,6 +1429,7 @@ public class Cube {
 		return 0;
 	}
 
+	//Heurística para os CornerCubelets com Rotação 2
 	public int getRot2Corners(CornerCubeletName from, CornerCubeletName to){
 		if(from == to) return 2;
 		
@@ -1398,7 +1495,7 @@ public class Cube {
 		return 0;
 	}
 
-
+	//Heurística para os EdgeCubelets com Rotação 0
 	public int getRot0Edges(EdgeCubeletName from, EdgeCubeletName to){
 		if(from == to) return 0;
 		
@@ -1493,6 +1590,7 @@ public class Cube {
 		return 0;
 	}
 	
+	//Heurística para os EdgeCubelets com Rotação 1
 	public int getRot1Edges(EdgeCubeletName from, EdgeCubeletName to){
 		if(from == to) return 3;
 		
